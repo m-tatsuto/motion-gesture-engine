@@ -1,0 +1,25 @@
+.DS_Store
+
+# Swift
+.build/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+
+# Android / Gradle
+.gradle/
+build/
+local.properties
+*.iml
+.idea/
+
+# Python tooling
+__pycache__/
+*.py[cod]
+.venv/
+
+# Local traces and evaluator output
+*.motiontrace
+*.motiontrace.jsonl
+*.motiontrace.jsonl.gz
+evaluation-output/
