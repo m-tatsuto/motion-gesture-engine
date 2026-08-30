@@ -1,6 +1,6 @@
 # Current baseline reference
 
-This document records the behavior that `LegacyGravityThresholdV1` must reproduce. It is a reference target, not a recommended final detector.
+This document records the behavior that `LegacyGravityThresholdV1` must reproduce. It is a reference target, not a recommended final detector. The frozen identity, lifecycle, and public core contract are defined in [LegacyGravityThresholdV1](legacy-gravity-threshold-v1.md).
 
 ## Generic behavior
 
