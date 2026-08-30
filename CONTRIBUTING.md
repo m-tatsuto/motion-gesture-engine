@@ -29,6 +29,13 @@ Fixtures must not contain account identifiers, advertising identifiers, device s
 - Report Swift and Kotlin parity impact where applicable.
 - Do not silently change `LegacyGravityThresholdV1` defaults.
 
+For specification or fixture changes, run:
+
+```sh
+npm ci
+npm test
+```
+
 ## Generated and recorded files
 
 Large trace files should not be added until the schema, provenance, and review status are documented. Prefer compact synthetic fixtures for unit and CI coverage.

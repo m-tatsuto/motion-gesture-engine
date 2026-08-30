@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/m-tatsuto/motion-gesture-engine/main/spec/v1/schema/motion-trace-record.schema.json",
+  "title": "Motion Trace JSON Lines record v1",
+  "oneOf": [
+    {
+      "$ref": "motion-trace-header.schema.json"
+    },
+    {
+      "$ref": "motion-sample.schema.json"
+    },
+    {
+      "$ref": "annotation.schema.json"
+    },
+    {
+      "$ref": "predicted-event.schema.json"
+    },
+    {
+      "$ref": "display-rotation-change.schema.json"
+    },
+    {
+      "$ref": "capability-change.schema.json"
+    },
+    {
+      "$ref": "motion-trace-footer.schema.json"
+    }
+  ]
+}

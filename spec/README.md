@@ -5,8 +5,10 @@ This directory contains the normative contracts shared by the Swift, Kotlin, rec
 ## Active specification
 
 - [Core specification v1](v1/core.md) — terminology, coordinate frames, signal semantics, time, lifecycle, errors, capabilities, and compatibility
+- [Wire format v1](v1/wire-format.md) — streaming container, record schemas, finalization, validation, and privacy tiers
+- [JSON Schemas](v1/schema/) — JSON Schema 2020-12 contracts for every v1 record and the logical trace envelope
 
-The wire-format JSON Schemas are tracked separately in [issue #3](https://github.com/m-tatsuto/motion-gesture-engine/issues/3). They must implement the semantic decisions in the core specification rather than redefine them.
+The wire-format schemas implement the semantic decisions in the core specification rather than redefining them.
 
 ## Versioning
 

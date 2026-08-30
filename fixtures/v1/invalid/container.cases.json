@@ -1,0 +1,29 @@
+{
+  "basePath": "valid/minimal.mge.jsonl",
+  "cases": [
+    {
+      "mutation": "removeFinalLf",
+      "expectedErrorCode": "finalLfMissing"
+    },
+    {
+      "mutation": "insertCrLf",
+      "expectedErrorCode": "carriageReturnForbidden"
+    },
+    {
+      "mutation": "prependBom",
+      "expectedErrorCode": "byteOrderMarkForbidden"
+    },
+    {
+      "mutation": "insertBlankLine",
+      "expectedErrorCode": "blankLine"
+    },
+    {
+      "mutation": "corruptUtf8",
+      "expectedErrorCode": "invalidUtf8"
+    },
+    {
+      "mutation": "truncateGzip",
+      "expectedErrorCode": "ioFailure"
+    }
+  ]
+}

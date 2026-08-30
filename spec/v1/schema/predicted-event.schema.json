@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/m-tatsuto/motion-gesture-engine/main/spec/v1/schema/predicted-event.schema.json",
+  "title": "Predicted gesture event v1",
+  "type": "object",
+  "required": [
+    "recordType",
+    "eventId",
+    "detectorStreamId",
+    "eventSequence",
+    "timestampNs",
+    "gesture"
+  ],
+  "properties": {
+    "recordType": {
+      "const": "predictedEvent"
+    },
+    "eventId": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "detectorStreamId": {
+      "$ref": "common.schema.json#/$defs/identifier"
+    },
+    "eventSequence": {
+      "$ref": "common.schema.json#/$defs/safeInteger"
+    },
+    "timestampNs": {
+      "$ref": "common.schema.json#/$defs/safeInteger"
+    },
+    "gesture": {
+      "$ref": "common.schema.json#/$defs/gesture"
+    },
+    "sourceSampleSequence": {
+      "$ref": "common.schema.json#/$defs/safeInteger"
+    }
+  },
+  "additionalProperties": false
+}

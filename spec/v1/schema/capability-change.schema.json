@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/m-tatsuto/motion-gesture-engine/main/spec/v1/schema/capability-change.schema.json",
+  "title": "Capability change v1",
+  "type": "object",
+  "required": [
+    "recordType",
+    "timestampNs",
+    "changeSequence",
+    "capabilityId"
+  ],
+  "properties": {
+    "recordType": {
+      "const": "capabilityChange"
+    },
+    "timestampNs": {
+      "$ref": "common.schema.json#/$defs/safeInteger"
+    },
+    "changeSequence": {
+      "$ref": "common.schema.json#/$defs/safeInteger"
+    },
+    "capabilityId": {
+      "$ref": "common.schema.json#/$defs/identifier"
+    },
+    "availability": {
+      "type": "string",
+      "enum": [
+        "available",
+        "unavailable",
+        "restricted",
+        "unknown"
+      ]
+    },
+    "accuracy": {
+      "$ref": "common.schema.json#/$defs/accuracy"
+    }
+  },
+  "anyOf": [
+    {
+      "type": "object",
+      "properties": {
+        "availability": true
+      },
+      "required": [
+        "availability"
+      ]
+    },
+    {
+      "type": "object",
+      "properties": {
+        "accuracy": true
+      },
+      "required": [
+        "accuracy"
+      ]
+    }
+  ],
+  "additionalProperties": false
+}

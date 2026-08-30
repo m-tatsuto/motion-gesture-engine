@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/m-tatsuto/motion-gesture-engine/main/spec/v1/schema/motion-trace.schema.json",
+  "title": "Logical materialized MotionTrace v1",
+  "description": "Logical envelope for in-memory tooling. The normative serialized container is JSON Lines, not this single JSON object.",
+  "type": "object",
+  "required": [
+    "header",
+    "records",
+    "footer"
+  ],
+  "properties": {
+    "header": {
+      "$ref": "motion-trace-header.schema.json"
+    },
+    "records": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "$ref": "motion-sample.schema.json"
+          },
+          {
+            "$ref": "annotation.schema.json"
+          },
+          {
+            "$ref": "predicted-event.schema.json"
+          },
+          {
+            "$ref": "display-rotation-change.schema.json"
+          },
+          {
+            "$ref": "capability-change.schema.json"
+          }
+        ]
+      }
+    },
+    "footer": {
+      "$ref": "motion-trace-footer.schema.json"
+    }
+  },
+  "additionalProperties": false
+}

@@ -18,7 +18,7 @@ Detector logic consumes samples and time explicitly. It must not read a system c
 
 Recorders must have explicit duration, sample-count, and byte limits. They report dropped or malformed samples rather than silently hiding incomplete data. Finalization is atomic so a partial file is never mistaken for a complete trace.
 
-The initial interchange direction is a versioned, gzip-compressed JSON Lines trace. The schema issue owns the final wire contract.
+The initial interchange format is versioned JSON Lines with an optional reproducible gzip wrapper. The wire specification owns the exact container contract.
 
 ## Annotation is not evaluation
 

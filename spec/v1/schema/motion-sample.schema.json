@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/m-tatsuto/motion-gesture-engine/main/spec/v1/schema/motion-sample.schema.json",
+  "title": "MotionSample v1",
+  "type": "object",
+  "required": [
+    "recordType",
+    "timestampNs",
+    "sequence",
+    "signals"
+  ],
+  "properties": {
+    "recordType": {
+      "const": "sample"
+    },
+    "timestampNs": {
+      "$ref": "common.schema.json#/$defs/safeInteger"
+    },
+    "sequence": {
+      "$ref": "common.schema.json#/$defs/safeInteger"
+    },
+    "signals": {
+      "type": "object",
+      "properties": {
+        "gravity": {
+          "$ref": "common.schema.json#/$defs/vectorObservation"
+        },
+        "userAcceleration": {
+          "$ref": "common.schema.json#/$defs/vectorObservation"
+        },
+        "rotationRate": {
+          "$ref": "common.schema.json#/$defs/vectorObservation"
+        },
+        "attitude": {
+          "$ref": "common.schema.json#/$defs/quaternionObservation"
+        }
+      },
+      "minProperties": 1,
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
