@@ -1,0 +1,334 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/m-tatsuto/motion-gesture-engine/main/spec/v1/schema/common.schema.json",
+  "title": "Motion Gesture Engine v1 common definitions",
+  "$defs": {
+    "safeInteger": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "positiveSafeInteger": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "identifier": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z][A-Za-z0-9._:-]*$"
+    },
+    "uuid": {
+      "type": "string",
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$"
+    },
+    "semanticVersion": {
+      "type": "string",
+      "maxLength": 128,
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(-[0-9A-Za-z.-]+)?(\\+[0-9A-Za-z.-]+)?$"
+    },
+    "vector3": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "minItems": 3,
+      "maxItems": 3
+    },
+    "matrix3x3RowMajor": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "minItems": 9,
+      "maxItems": 9
+    },
+    "quaternionXyzw": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "minItems": 4,
+      "maxItems": 4
+    },
+    "gesture": {
+      "type": "string",
+      "enum": [
+        "tiltForward",
+        "tiltBackward"
+      ]
+    },
+    "accuracy": {
+      "type": "object",
+      "required": [
+        "level"
+      ],
+      "properties": {
+        "level": {
+          "type": "string",
+          "enum": [
+            "unreliable",
+            "low",
+            "medium",
+            "high",
+            "unknown"
+          ]
+        },
+        "nativeValue": {
+          "type": "integer",
+          "minimum": -2147483648,
+          "maximum": 2147483647
+        }
+      },
+      "additionalProperties": false
+    },
+    "vectorObservation": {
+      "type": "object",
+      "required": [
+        "capabilityId",
+        "value"
+      ],
+      "properties": {
+        "capabilityId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "value": {
+          "$ref": "#/$defs/vector3"
+        },
+        "accuracy": {
+          "$ref": "#/$defs/accuracy"
+        }
+      },
+      "additionalProperties": false
+    },
+    "quaternionObservation": {
+      "type": "object",
+      "required": [
+        "capabilityId",
+        "value"
+      ],
+      "properties": {
+        "capabilityId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "value": {
+          "$ref": "#/$defs/quaternionXyzw"
+        },
+        "accuracy": {
+          "$ref": "#/$defs/accuracy"
+        },
+        "normalization": {
+          "type": "object",
+          "required": [
+            "method",
+            "originalNorm"
+          ],
+          "properties": {
+            "method": {
+              "const": "normalizedToUnit"
+            },
+            "originalNorm": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "userReportProvenance": {
+      "type": "object",
+      "required": [
+        "kind",
+        "collectionProtocolVersion"
+      ],
+      "properties": {
+        "kind": {
+          "const": "userReport"
+        },
+        "collectionProtocolVersion": {
+          "$ref": "#/$defs/identifier"
+        }
+      },
+      "additionalProperties": false
+    },
+    "provenance": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "kind",
+            "generatorId",
+            "generatorVersion"
+          ],
+          "properties": {
+            "kind": {
+              "const": "synthetic"
+            },
+            "generatorId": {
+              "$ref": "#/$defs/identifier"
+            },
+            "generatorVersion": {
+              "$ref": "#/$defs/semanticVersion"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "kind",
+            "collectionProtocolVersion"
+          ],
+          "properties": {
+            "kind": {
+              "const": "contributor"
+            },
+            "collectionProtocolVersion": {
+              "$ref": "#/$defs/identifier"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "$ref": "#/$defs/userReportProvenance"
+        },
+        {
+          "type": "object",
+          "required": [
+            "kind",
+            "reviewProtocolVersion",
+            "sourceAnnotationIds"
+          ],
+          "properties": {
+            "kind": {
+              "const": "reviewedGroundTruth"
+            },
+            "reviewProtocolVersion": {
+              "$ref": "#/$defs/identifier"
+            },
+            "sourceAnnotationIds": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/uuid"
+              },
+              "minItems": 1,
+              "maxItems": 64,
+              "uniqueItems": true
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "attitudeReference": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "kind",
+            "scope",
+            "referenceInstanceId",
+            "nativeReferenceId"
+          ],
+          "properties": {
+            "kind": {
+              "const": "gravityAlignedSessionLocal"
+            },
+            "scope": {
+              "const": "session"
+            },
+            "referenceInstanceId": {
+              "$ref": "#/$defs/uuid"
+            },
+            "nativeReferenceId": {
+              "$ref": "#/$defs/identifier"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "kind",
+            "scope",
+            "nativeReferenceId"
+          ],
+          "properties": {
+            "kind": {
+              "enum": [
+                "eastNorthUpMagnetic",
+                "eastNorthUpTrue"
+              ]
+            },
+            "scope": {
+              "const": "global"
+            },
+            "nativeReferenceId": {
+              "$ref": "#/$defs/identifier"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "kind",
+            "scope",
+            "referenceInstanceId",
+            "nativeReferenceId",
+            "axisDefinition"
+          ],
+          "properties": {
+            "kind": {
+              "const": "platformDefined"
+            },
+            "scope": {
+              "const": "session"
+            },
+            "referenceInstanceId": {
+              "$ref": "#/$defs/uuid"
+            },
+            "nativeReferenceId": {
+              "$ref": "#/$defs/identifier"
+            },
+            "axisDefinition": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "kind",
+            "scope",
+            "nativeReferenceId",
+            "axisDefinition"
+          ],
+          "properties": {
+            "kind": {
+              "const": "platformDefined"
+            },
+            "scope": {
+              "const": "global"
+            },
+            "nativeReferenceId": {
+              "$ref": "#/$defs/identifier"
+            },
+            "axisDefinition": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    }
+  }
+}

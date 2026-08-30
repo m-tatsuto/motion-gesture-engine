@@ -1,0 +1,20 @@
+{
+  "name": "motion-gesture-engine-spec",
+  "version": "0.1.0",
+  "private": true,
+  "license": "Apache-2.0",
+  "description": "Validation tooling for the Motion Gesture Engine interchange specification",
+  "type": "module",
+  "scripts": {
+    "test": "npm run validate:schemas && npm run validate:fixtures",
+    "validate:schemas": "node tools/validate-trace.mjs --schemas",
+    "validate:fixtures": "node tools/validate-trace.mjs --fixtures",
+    "validate:trace": "node tools/validate-trace.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "ajv": "8.20.0"
+  }
+}

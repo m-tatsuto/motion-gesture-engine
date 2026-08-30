@@ -51,7 +51,7 @@ Platform sensor
 
 Consent, authentication, upload endpoints, private storage, retention, and user feedback belong to the integrating application. Raw user-submitted traces must never be published automatically.
 
-See the [Core specification v1](spec/v1/core.md), [Design principles](docs/design-principles.md), [Current baseline](docs/current-baseline.md), and the [Roadmap](ROADMAP.md). Work is tracked in the [v0.1 epic](https://github.com/m-tatsuto/motion-gesture-engine/issues/1) and [Measurement Foundation milestone](https://github.com/m-tatsuto/motion-gesture-engine/milestone/1).
+See the [Core specification v1](spec/v1/core.md), [Wire format v1](spec/v1/wire-format.md), [Design principles](docs/design-principles.md), [Current baseline](docs/current-baseline.md), and the [Roadmap](ROADMAP.md). Work is tracked in the [v0.1 epic](https://github.com/m-tatsuto/motion-gesture-engine/issues/1) and [Measurement Foundation milestone](https://github.com/m-tatsuto/motion-gesture-engine/milestone/1).
 
 ## Planned modules
 

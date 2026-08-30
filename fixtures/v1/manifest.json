@@ -1,0 +1,87 @@
+{
+  "schemaVersion": "1.0.0-draft.1",
+  "valid": [
+    {
+      "path": "valid/minimal.mge.jsonl",
+      "expectedTraceState": "finalizedComplete"
+    },
+    {
+      "path": "valid/full.mge.jsonl",
+      "expectedTraceState": "finalizedComplete"
+    },
+    {
+      "path": "valid/cancelled.mge.jsonl",
+      "expectedTraceState": "finalizedIncomplete"
+    }
+  ],
+  "invalid": [
+    {
+      "path": "invalid/unsupported-version.mge.jsonl",
+      "expectedErrorCode": "unsupportedSchemaVersion"
+    },
+    {
+      "path": "invalid/forbidden-account-id.mge.jsonl",
+      "expectedErrorCode": "schemaViolation"
+    },
+    {
+      "path": "invalid/unclassified-exact-model.mge.jsonl",
+      "expectedErrorCode": "schemaViolation"
+    },
+    {
+      "path": "invalid/sample-without-signals.mge.jsonl",
+      "expectedErrorCode": "schemaViolation"
+    },
+    {
+      "path": "invalid/nonmonotonic-samples.mge.jsonl",
+      "expectedErrorCode": "nonMonotonicSample"
+    },
+    {
+      "path": "invalid/unknown-capability.mge.jsonl",
+      "expectedErrorCode": "unknownCapability"
+    },
+    {
+      "path": "invalid/user-report-evaluator-label.mge.jsonl",
+      "expectedErrorCode": "schemaViolation"
+    },
+    {
+      "path": "invalid/missing-footer.mge.jsonl",
+      "expectedErrorCode": "incompleteTrace"
+    },
+    {
+      "path": "invalid/footer-count-mismatch.mge.jsonl",
+      "expectedErrorCode": "footerCountMismatch"
+    },
+    {
+      "path": "invalid/observed-timing-mismatch.mge.jsonl",
+      "expectedErrorCode": "observedTimingMismatch"
+    },
+    {
+      "path": "invalid/undeclared-annotation-privacy.mge.jsonl",
+      "expectedErrorCode": "privacyDeclarationMismatch"
+    },
+    {
+      "path": "invalid/backwards-annotation-interval.mge.jsonl",
+      "expectedErrorCode": "invalidAnnotationInterval"
+    },
+    {
+      "path": "invalid/unknown-detector.mge.jsonl",
+      "expectedErrorCode": "unknownDetector"
+    },
+    {
+      "path": "invalid/invalid-quaternion-norm.mge.jsonl",
+      "expectedErrorCode": "invalidQuaternionNorm"
+    },
+    {
+      "path": "invalid/incompatible-termination.mge.jsonl",
+      "expectedErrorCode": "invalidTermination"
+    }
+  ],
+  "gzipRoundTrips": [
+    {
+      "path": "valid/minimal.mge.jsonl",
+      "expectedTraceState": "finalizedComplete"
+    }
+  ],
+  "forbiddenFieldCases": "invalid/forbidden-fields.cases.json",
+  "containerCases": "invalid/container.cases.json"
+}

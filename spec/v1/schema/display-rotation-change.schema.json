@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/m-tatsuto/motion-gesture-engine/main/spec/v1/schema/display-rotation-change.schema.json",
+  "title": "Display rotation change v1",
+  "type": "object",
+  "required": [
+    "recordType",
+    "timestampNs",
+    "changeSequence",
+    "displayRotationClockwise"
+  ],
+  "properties": {
+    "recordType": {
+      "const": "displayRotationChange"
+    },
+    "timestampNs": {
+      "$ref": "common.schema.json#/$defs/safeInteger"
+    },
+    "changeSequence": {
+      "$ref": "common.schema.json#/$defs/safeInteger"
+    },
+    "displayRotationClockwise": {
+      "type": "integer",
+      "enum": [
+        0,
+        90,
+        180,
+        270
+      ]
+    }
+  },
+  "additionalProperties": false
+}

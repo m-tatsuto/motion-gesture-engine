@@ -1,0 +1,640 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/m-tatsuto/motion-gesture-engine/main/spec/v1/schema/motion-trace-header.schema.json",
+  "title": "MotionTrace header v1",
+  "type": "object",
+  "required": [
+    "recordType",
+    "schemaVersion",
+    "coreSpecVersion",
+    "traceId",
+    "producer",
+    "privacy",
+    "conventions",
+    "orderingPolicy",
+    "session",
+    "capabilities"
+  ],
+  "properties": {
+    "recordType": {
+      "const": "traceHeader"
+    },
+    "schemaVersion": {
+      "const": "1.0.0-draft.1"
+    },
+    "coreSpecVersion": {
+      "const": "1.0.0-draft.1"
+    },
+    "traceId": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "producer": {
+      "type": "object",
+      "required": [
+        "libraryName",
+        "libraryVersion",
+        "platformAdapterName",
+        "platformAdapterVersion"
+      ],
+      "properties": {
+        "libraryName": {
+          "$ref": "common.schema.json#/$defs/identifier"
+        },
+        "libraryVersion": {
+          "$ref": "common.schema.json#/$defs/semanticVersion"
+        },
+        "platformAdapterName": {
+          "$ref": "common.schema.json#/$defs/identifier"
+        },
+        "platformAdapterVersion": {
+          "$ref": "common.schema.json#/$defs/semanticVersion"
+        }
+      },
+      "additionalProperties": false
+    },
+    "privacy": {
+      "type": "object",
+      "required": [
+        "tier",
+        "dataClasses"
+      ],
+      "properties": {
+        "tier": {
+          "type": "string",
+          "enum": [
+            "synthetic",
+            "privateSensitive",
+            "reviewedSanitized",
+            "publicApproved"
+          ]
+        },
+        "dataClasses": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "motionSensorData",
+              "gestureAnnotation",
+              "userReport",
+              "exactDeviceModel",
+              "osMajorVersion"
+            ]
+          },
+          "contains": {
+            "const": "motionSensorData"
+          },
+          "minContains": 1,
+          "minItems": 1,
+          "maxItems": 5,
+          "uniqueItems": true
+        },
+        "reviewProtocolVersion": {
+          "$ref": "common.schema.json#/$defs/identifier"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "type": "object",
+            "properties": {
+              "tier": {
+                "enum": [
+                  "reviewedSanitized",
+                  "publicApproved"
+                ]
+              }
+            },
+            "required": [
+              "tier"
+            ]
+          },
+          "then": {
+            "type": "object",
+            "properties": {
+              "reviewProtocolVersion": true
+            },
+            "required": [
+              "reviewProtocolVersion"
+            ]
+          },
+          "else": {
+            "type": "object",
+            "not": {
+              "type": "object",
+              "properties": {
+                "reviewProtocolVersion": true
+              },
+              "required": [
+                "reviewProtocolVersion"
+              ]
+            }
+          }
+        }
+      ],
+      "additionalProperties": false
+    },
+    "conventions": {
+      "type": "object",
+      "required": [
+        "storedVectorFrame",
+        "gravityUnit",
+        "userAccelerationUnit",
+        "rotationRateUnit",
+        "attitudeQuaternion",
+        "attitudeQuaternionNormTolerance",
+        "frameOrthonormalTolerance",
+        "standardGravityMps2",
+        "timestampUnit",
+        "timestampOrigin",
+        "sampleOrdering"
+      ],
+      "properties": {
+        "storedVectorFrame": {
+          "const": "deviceD"
+        },
+        "gravityUnit": {
+          "const": "standardGravity"
+        },
+        "userAccelerationUnit": {
+          "const": "standardGravity"
+        },
+        "rotationRateUnit": {
+          "const": "radianPerSecond"
+        },
+        "attitudeQuaternion": {
+          "const": "xyzwReferenceFromDevice"
+        },
+        "attitudeQuaternionNormTolerance": {
+          "const": 0.001
+        },
+        "frameOrthonormalTolerance": {
+          "const": 0.000001
+        },
+        "standardGravityMps2": {
+          "const": 9.80665
+        },
+        "timestampUnit": {
+          "const": "nanosecond"
+        },
+        "timestampOrigin": {
+          "const": "sessionMonotonicOrigin"
+        },
+        "sampleOrdering": {
+          "const": "timestampThenSequence"
+        }
+      },
+      "additionalProperties": false
+    },
+    "orderingPolicy": {
+      "type": "object",
+      "required": [
+        "sampleReordering"
+      ],
+      "properties": {
+        "sampleReordering": {
+          "oneOf": [
+            {
+              "type": "object",
+              "required": [
+                "kind"
+              ],
+              "properties": {
+                "kind": {
+                  "const": "none"
+                }
+              },
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "required": [
+                "kind",
+                "maximumLatenessNs"
+              ],
+              "properties": {
+                "kind": {
+                  "const": "bounded"
+                },
+                "maximumLatenessNs": {
+                  "$ref": "common.schema.json#/$defs/safeInteger"
+                }
+              },
+              "additionalProperties": false
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "session": {
+      "type": "object",
+      "required": [
+        "displayRotationClockwiseAtStart",
+        "gestureFrameFromDeviceRowMajor",
+        "gestureFrameFrozen"
+      ],
+      "properties": {
+        "displayRotationClockwiseAtStart": {
+          "type": "integer",
+          "enum": [
+            0,
+            90,
+            180,
+            270
+          ]
+        },
+        "gestureFrameFromDeviceRowMajor": {
+          "$ref": "common.schema.json#/$defs/matrix3x3RowMajor"
+        },
+        "gestureFrameFrozen": {
+          "const": true
+        },
+        "attitudeReference": {
+          "$ref": "common.schema.json#/$defs/attitudeReference"
+        }
+      },
+      "additionalProperties": false
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/capability"
+      },
+      "minItems": 1,
+      "maxItems": 64
+    },
+    "detectors": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/detector"
+      },
+      "minItems": 1,
+      "maxItems": 64
+    },
+    "device": {
+      "$ref": "#/$defs/device"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "type": "object",
+        "properties": {
+          "device": {
+            "type": "object",
+            "properties": {
+              "exactModel": true
+            },
+            "required": [
+              "exactModel"
+            ]
+          }
+        },
+        "required": [
+          "device"
+        ]
+      },
+      "then": {
+        "type": "object",
+        "properties": {
+          "privacy": {
+            "type": "object",
+            "properties": {
+              "dataClasses": {
+                "type": "array",
+                "contains": {
+                  "const": "exactDeviceModel"
+                },
+                "minContains": 1
+              }
+            },
+            "required": [
+              "dataClasses"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "type": "object",
+        "properties": {
+          "device": {
+            "type": "object",
+            "properties": {
+              "osMajorVersion": true
+            },
+            "required": [
+              "osMajorVersion"
+            ]
+          }
+        },
+        "required": [
+          "device"
+        ]
+      },
+      "then": {
+        "type": "object",
+        "properties": {
+          "privacy": {
+            "type": "object",
+            "properties": {
+              "dataClasses": {
+                "type": "array",
+                "contains": {
+                  "const": "osMajorVersion"
+                },
+                "minContains": 1
+              }
+            },
+            "required": [
+              "dataClasses"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "capability": {
+      "type": "object",
+      "required": [
+        "capabilityId",
+        "signalKind",
+        "requirement",
+        "biasCorrection",
+        "availability",
+        "sourceKind",
+        "nativeSourceIdentifier",
+        "nativeUnit",
+        "nativeSignConvention",
+        "conversions"
+      ],
+      "properties": {
+        "capabilityId": {
+          "$ref": "common.schema.json#/$defs/identifier"
+        },
+        "signalKind": {
+          "type": "string",
+          "enum": [
+            "gravity",
+            "userAcceleration",
+            "rotationRate",
+            "attitude"
+          ]
+        },
+        "requirement": {
+          "type": "string",
+          "enum": [
+            "required",
+            "optional"
+          ]
+        },
+        "biasCorrection": {
+          "type": "string",
+          "enum": [
+            "raw",
+            "biasCorrected",
+            "notApplicable"
+          ]
+        },
+        "availability": {
+          "type": "string",
+          "enum": [
+            "available",
+            "unavailable",
+            "restricted",
+            "unknown"
+          ]
+        },
+        "sourceKind": {
+          "type": "string",
+          "enum": [
+            "hardware",
+            "software",
+            "fused",
+            "unknown"
+          ]
+        },
+        "nativeSourceIdentifier": {
+          "$ref": "common.schema.json#/$defs/identifier"
+        },
+        "nativeUnit": {
+          "type": "string",
+          "enum": [
+            "standardGravity",
+            "meterPerSecondSquared",
+            "radianPerSecond",
+            "unitQuaternion",
+            "platformDefined"
+          ]
+        },
+        "nativeUnitIdentifier": {
+          "$ref": "common.schema.json#/$defs/identifier"
+        },
+        "nativeSignConvention": {
+          "type": "string",
+          "enum": [
+            "physicalGravity",
+            "specificForce",
+            "gravityRemovedAcceleration",
+            "rightHandAngularVelocity",
+            "referenceFromDevice",
+            "deviceFromReference",
+            "platformDefined"
+          ]
+        },
+        "nativeSignConventionIdentifier": {
+          "$ref": "common.schema.json#/$defs/identifier"
+        },
+        "conversions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "none",
+              "negate",
+              "divideByStandardGravity",
+              "axisTransform",
+              "quaternionReorder",
+              "quaternionInvert",
+              "referenceBasisTransform"
+            ]
+          },
+          "minItems": 1,
+          "maxItems": 7,
+          "uniqueItems": true
+        },
+        "requestedTiming": {
+          "type": "object",
+          "properties": {
+            "intervalNs": {
+              "$ref": "common.schema.json#/$defs/positiveSafeInteger"
+            },
+            "nativeModeIdentifier": {
+              "$ref": "common.schema.json#/$defs/identifier"
+            }
+          },
+          "minProperties": 1,
+          "additionalProperties": false
+        },
+        "sensorProperties": {
+          "type": "object",
+          "properties": {
+            "minimumDelayUs": {
+              "$ref": "common.schema.json#/$defs/safeInteger"
+            },
+            "maximumDelayUs": {
+              "$ref": "common.schema.json#/$defs/safeInteger"
+            },
+            "resolution": {
+              "type": "number",
+              "minimum": 0
+            }
+          },
+          "minProperties": 1,
+          "additionalProperties": false
+        },
+        "initialAccuracy": {
+          "$ref": "common.schema.json#/$defs/accuracy"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "type": "object",
+            "properties": {
+              "nativeUnit": {
+                "const": "platformDefined"
+              }
+            },
+            "required": [
+              "nativeUnit"
+            ]
+          },
+          "then": {
+            "type": "object",
+            "properties": {
+              "nativeUnitIdentifier": true
+            },
+            "required": [
+              "nativeUnitIdentifier"
+            ]
+          },
+          "else": {
+            "type": "object",
+            "not": {
+              "type": "object",
+              "properties": {
+                "nativeUnitIdentifier": true
+              },
+              "required": [
+                "nativeUnitIdentifier"
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "type": "object",
+            "properties": {
+              "nativeSignConvention": {
+                "const": "platformDefined"
+              }
+            },
+            "required": [
+              "nativeSignConvention"
+            ]
+          },
+          "then": {
+            "type": "object",
+            "properties": {
+              "nativeSignConventionIdentifier": true
+            },
+            "required": [
+              "nativeSignConventionIdentifier"
+            ]
+          },
+          "else": {
+            "type": "object",
+            "not": {
+              "type": "object",
+              "properties": {
+                "nativeSignConventionIdentifier": true
+              },
+              "required": [
+                "nativeSignConventionIdentifier"
+              ]
+            }
+          }
+        }
+      ],
+      "additionalProperties": false
+    },
+    "detector": {
+      "type": "object",
+      "required": [
+        "detectorStreamId",
+        "detectorId",
+        "detectorVersion",
+        "configurationIdentity"
+      ],
+      "properties": {
+        "detectorStreamId": {
+          "$ref": "common.schema.json#/$defs/identifier"
+        },
+        "detectorId": {
+          "$ref": "common.schema.json#/$defs/identifier"
+        },
+        "detectorVersion": {
+          "$ref": "common.schema.json#/$defs/semanticVersion"
+        },
+        "configurationIdentity": {
+          "$ref": "common.schema.json#/$defs/identifier"
+        }
+      },
+      "additionalProperties": false
+    },
+    "device": {
+      "type": "object",
+      "required": [
+        "platformFamily"
+      ],
+      "properties": {
+        "platformFamily": {
+          "type": "string",
+          "enum": [
+            "ios",
+            "android",
+            "other"
+          ]
+        },
+        "osMajorVersion": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 999
+        },
+        "exactModel": {
+          "type": "object",
+          "required": [
+            "value",
+            "privacyClass"
+          ],
+          "properties": {
+            "value": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64
+            },
+            "privacyClass": {
+              "const": "quasiIdentifier.exactDeviceModel"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

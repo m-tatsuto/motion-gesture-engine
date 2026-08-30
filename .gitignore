@@ -13,6 +13,9 @@ local.properties
 *.iml
 .idea/
 
+# Node validation tooling
+node_modules/
+
 # Python tooling
 __pycache__/
 *.py[cod]
@@ -22,4 +25,10 @@ __pycache__/
 *.motiontrace
 *.motiontrace.jsonl
 *.motiontrace.jsonl.gz
+*.mge.jsonl
+*.mge.jsonl.gz
 evaluation-output/
+
+# Conformance fixtures are intentionally versioned
+!fixtures/**/*.mge.jsonl
+!fixtures/**/*.mge.jsonl.gz

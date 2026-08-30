@@ -1,0 +1,39 @@
+{
+  "basePath": "valid/minimal.mge.jsonl",
+  "expectedErrorCode": "schemaViolation",
+  "cases": [
+    {
+      "field": "accountId",
+      "value": "account-123"
+    },
+    {
+      "field": "advertisingId",
+      "value": "advertising-123"
+    },
+    {
+      "field": "deviceSerialNumber",
+      "value": "serial-123"
+    },
+    {
+      "field": "location",
+      "value": {
+        "latitude": 35.0,
+        "longitude": 139.0
+      }
+    },
+    {
+      "field": "audio",
+      "value": "audio-bytes"
+    },
+    {
+      "field": "video",
+      "value": "video-bytes"
+    },
+    {
+      "field": "applicationLogs",
+      "value": [
+        "unrelated log"
+      ]
+    }
+  ]
+}

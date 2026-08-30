@@ -1,0 +1,162 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/m-tatsuto/motion-gesture-engine/main/spec/v1/schema/annotation.schema.json",
+  "title": "Motion annotation v1",
+  "type": "object",
+  "required": [
+    "recordType",
+    "annotationId",
+    "annotationKind",
+    "timestampNs",
+    "provenance"
+  ],
+  "properties": {
+    "recordType": {
+      "const": "annotation"
+    },
+    "annotationId": {
+      "$ref": "common.schema.json#/$defs/uuid"
+    },
+    "annotationKind": {
+      "type": "string",
+      "enum": [
+        "gestureIntent",
+        "gestureOnset",
+        "gestureCommit",
+        "gestureEnd",
+        "neutralInterval",
+        "negativeWindow",
+        "userReportedProblem"
+      ]
+    },
+    "timestampNs": {
+      "$ref": "common.schema.json#/$defs/safeInteger"
+    },
+    "endTimestampNs": {
+      "$ref": "common.schema.json#/$defs/safeInteger"
+    },
+    "gesture": {
+      "$ref": "common.schema.json#/$defs/gesture"
+    },
+    "provenance": {
+      "$ref": "common.schema.json#/$defs/provenance"
+    },
+    "report": {
+      "type": "object",
+      "required": [
+        "problemCode"
+      ],
+      "properties": {
+        "problemCode": {
+          "type": "string",
+          "enum": [
+            "missedGesture",
+            "unexpectedGesture",
+            "wrongDirection",
+            "timing",
+            "other"
+          ]
+        },
+        "expectedGesture": {
+          "$ref": "common.schema.json#/$defs/gesture"
+        },
+        "observedGesture": {
+          "$ref": "common.schema.json#/$defs/gesture"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "type": "object",
+        "properties": {
+          "annotationKind": {
+            "enum": [
+              "gestureIntent",
+              "gestureOnset",
+              "gestureCommit",
+              "gestureEnd"
+            ]
+          }
+        },
+        "required": [
+          "annotationKind"
+        ]
+      },
+      "then": {
+        "type": "object",
+        "properties": {
+          "gesture": true
+        },
+        "required": [
+          "gesture"
+        ]
+      }
+    },
+    {
+      "if": {
+        "type": "object",
+        "properties": {
+          "annotationKind": {
+            "enum": [
+              "neutralInterval",
+              "negativeWindow"
+            ]
+          }
+        },
+        "required": [
+          "annotationKind"
+        ]
+      },
+      "then": {
+        "type": "object",
+        "properties": {
+          "endTimestampNs": true
+        },
+        "required": [
+          "endTimestampNs"
+        ]
+      }
+    },
+    {
+      "if": {
+        "type": "object",
+        "properties": {
+          "annotationKind": {
+            "const": "userReportedProblem"
+          }
+        },
+        "required": [
+          "annotationKind"
+        ]
+      },
+      "then": {
+        "type": "object",
+        "required": [
+          "report"
+        ],
+        "properties": {
+          "report": true,
+          "provenance": {
+            "$ref": "common.schema.json#/$defs/userReportProvenance"
+          }
+        }
+      },
+      "else": {
+        "type": "object",
+        "not": {
+          "type": "object",
+          "properties": {
+            "report": true
+          },
+          "required": [
+            "report"
+          ]
+        }
+      }
+    }
+  ],
+  "additionalProperties": false
+}

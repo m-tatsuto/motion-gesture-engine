@@ -1,0 +1,214 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/m-tatsuto/motion-gesture-engine/main/spec/v1/schema/motion-trace-footer.schema.json",
+  "title": "MotionTrace footer v1",
+  "type": "object",
+  "required": [
+    "recordType",
+    "schemaVersion",
+    "finalizationStatus",
+    "terminationReason",
+    "durationNs",
+    "recordCounts",
+    "reorderedSamples",
+    "droppedSamples",
+    "observedTiming"
+  ],
+  "properties": {
+    "recordType": {
+      "const": "traceFooter"
+    },
+    "schemaVersion": {
+      "const": "1.0.0-draft.1"
+    },
+    "finalizationStatus": {
+      "type": "string",
+      "enum": [
+        "complete",
+        "bounded",
+        "cancelled",
+        "failed"
+      ]
+    },
+    "terminationReason": {
+      "type": "string",
+      "enum": [
+        "requestedStop",
+        "durationLimit",
+        "sampleLimit",
+        "byteLimit",
+        "callerCancelled",
+        "sourceFailure",
+        "ioFailure"
+      ]
+    },
+    "failureCode": {
+      "$ref": "common.schema.json#/$defs/identifier"
+    },
+    "durationNs": {
+      "$ref": "common.schema.json#/$defs/safeInteger"
+    },
+    "recordCounts": {
+      "type": "object",
+      "required": [
+        "samples",
+        "annotations",
+        "predictedEvents",
+        "displayRotationChanges",
+        "capabilityChanges"
+      ],
+      "properties": {
+        "samples": {
+          "$ref": "common.schema.json#/$defs/safeInteger"
+        },
+        "annotations": {
+          "$ref": "common.schema.json#/$defs/safeInteger"
+        },
+        "predictedEvents": {
+          "$ref": "common.schema.json#/$defs/safeInteger"
+        },
+        "displayRotationChanges": {
+          "$ref": "common.schema.json#/$defs/safeInteger"
+        },
+        "capabilityChanges": {
+          "$ref": "common.schema.json#/$defs/safeInteger"
+        }
+      },
+      "additionalProperties": false
+    },
+    "reorderedSamples": {
+      "$ref": "common.schema.json#/$defs/safeInteger"
+    },
+    "droppedSamples": {
+      "type": "object",
+      "required": [
+        "total",
+        "byReason"
+      ],
+      "properties": {
+        "total": {
+          "$ref": "common.schema.json#/$defs/safeInteger"
+        },
+        "byReason": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/droppedReason"
+          },
+          "maxItems": 128
+        }
+      },
+      "additionalProperties": false
+    },
+    "observedTiming": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/observedTiming"
+      },
+      "maxItems": 64
+    }
+  },
+  "$defs": {
+    "droppedReason": {
+      "type": "object",
+      "required": [
+        "reason",
+        "count"
+      ],
+      "properties": {
+        "reason": {
+          "type": "string",
+          "enum": [
+            "malformed",
+            "nonMonotonicTimestamp",
+            "bufferOverflow",
+            "writerBackpressure",
+            "limitReached",
+            "sourceFailure",
+            "other"
+          ]
+        },
+        "capabilityId": {
+          "$ref": "common.schema.json#/$defs/identifier"
+        },
+        "count": {
+          "$ref": "common.schema.json#/$defs/positiveSafeInteger"
+        }
+      },
+      "additionalProperties": false
+    },
+    "observedTiming": {
+      "type": "object",
+      "required": [
+        "capabilityId",
+        "acceptedObservationCount"
+      ],
+      "properties": {
+        "capabilityId": {
+          "$ref": "common.schema.json#/$defs/identifier"
+        },
+        "acceptedObservationCount": {
+          "$ref": "common.schema.json#/$defs/safeInteger"
+        },
+        "minimumIntervalNs": {
+          "$ref": "common.schema.json#/$defs/safeInteger"
+        },
+        "maximumIntervalNs": {
+          "$ref": "common.schema.json#/$defs/safeInteger"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "type": "object",
+            "properties": {
+              "acceptedObservationCount": {
+                "type": "integer",
+                "minimum": 2
+              }
+            },
+            "required": [
+              "acceptedObservationCount"
+            ]
+          },
+          "then": {
+            "type": "object",
+            "properties": {
+              "minimumIntervalNs": true,
+              "maximumIntervalNs": true
+            },
+            "required": [
+              "minimumIntervalNs",
+              "maximumIntervalNs"
+            ]
+          },
+          "else": {
+            "type": "object",
+            "not": {
+              "type": "object",
+              "anyOf": [
+                {
+                  "properties": {
+                    "minimumIntervalNs": true
+                  },
+                  "required": [
+                    "minimumIntervalNs"
+                  ]
+                },
+                {
+                  "properties": {
+                    "maximumIntervalNs": true
+                  },
+                  "required": [
+                    "maximumIntervalNs"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
