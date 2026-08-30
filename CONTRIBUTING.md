@@ -36,6 +36,13 @@ npm ci
 npm test
 ```
 
+For Swift or Kotlin core changes, also run:
+
+```sh
+swift test --package-path swift
+./android/gradlew -p android :motion-gesture-core:test
+```
+
 ## Generated and recorded files
 
 Large trace files should not be added until the schema, provenance, and review status are documented. Prefer compact synthetic fixtures for unit and CI coverage.
