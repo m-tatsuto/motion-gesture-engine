@@ -74,6 +74,10 @@
     {
       "path": "invalid/incompatible-termination.mge.jsonl",
       "expectedErrorCode": "invalidTermination"
+    },
+    {
+      "path": "invalid/recorder-limit-mismatch.mge.jsonl",
+      "expectedErrorCode": "recorderLimitMismatch"
     }
   ],
   "gzipRoundTrips": [

@@ -124,6 +124,7 @@
             "writerBackpressure",
             "limitReached",
             "sourceFailure",
+            "unsupported",
             "other"
           ]
         },
