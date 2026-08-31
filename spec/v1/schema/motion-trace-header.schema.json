@@ -226,6 +226,26 @@
       },
       "additionalProperties": false
     },
+    "recorderLimits": {
+      "type": "object",
+      "required": [
+        "maximumDurationNs",
+        "maximumSamples",
+        "maximumBytes"
+      ],
+      "properties": {
+        "maximumDurationNs": {
+          "$ref": "common.schema.json#/$defs/positiveSafeInteger"
+        },
+        "maximumSamples": {
+          "$ref": "common.schema.json#/$defs/positiveSafeInteger"
+        },
+        "maximumBytes": {
+          "$ref": "common.schema.json#/$defs/positiveSafeInteger"
+        }
+      },
+      "additionalProperties": false
+    },
     "session": {
       "type": "object",
       "required": [

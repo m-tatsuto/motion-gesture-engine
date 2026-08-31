@@ -62,6 +62,7 @@ The header freezes the session descriptor before samples:
 - Producer and platform-adapter versions
 - Canonical units, frames, quaternion direction, and monotonic-time semantics
 - Bounded sample-reordering policy, or an explicit declaration that no reordering occurs
+- Recorder duration, accepted-sample, and uncompressed-byte limits when a recorder produced the trace
 - Initial display rotation and frozen gesture-frame transform
 - Initial sensor capabilities and requested timing
 - Optional detector stream descriptors
@@ -72,6 +73,8 @@ The required `conventions` constants make a trace self-describing even when it i
 `traceId` is a newly generated opaque UUID. It MUST NOT be derived from an account, installation, advertising identifier, hardware identifier, device name, or wall-clock timestamp.
 
 Capabilities have stable `capabilityId` values. Every capability declares whether it was required or optional and whether rotation rate is raw or bias-corrected. Every signal observation references a compatible capability. Requested timing is configuration intent; observed timing in the footer is derived from accepted sample timestamps.
+
+`recorderLimits`, when present, records positive `maximumDurationNs`, `maximumSamples`, and `maximumBytes` values. `maximumBytes` covers the complete uncompressed JSONL container, including header, final LF, and footer. A recorder MUST enforce the same values it serializes; readers do not infer missing limits for traces produced by another tool.
 
 `nativeSourceIdentifier`, `nativeModeIdentifier`, and platform-defined unit or sign identifiers are namespaced adapter constants. They MUST NOT contain a runtime hardware name, vendor string, serial number, or other device-derived identifier.
 
@@ -86,6 +89,8 @@ Each signal observation contains:
 - Optional normalized and native accuracy information
 
 `displayRotationChange` and `capabilityChange` records preserve runtime changes without mutating the header. Stored sample vectors remain in device frame `D`; a display change never rewrites earlier or later vectors silently.
+
+Dropped-sample diagnostics distinguish malformed input, non-monotonic time, buffer overflow, writer backpressure, reached limits, source failure, unsupported capabilities, and an explicit fallback category. A producer MUST NOT silently map an unsupported capability to a supported signal.
 
 ## 6. Annotations and predictions
 

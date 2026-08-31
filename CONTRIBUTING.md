@@ -36,11 +36,11 @@ npm ci
 npm test
 ```
 
-For Swift or Kotlin core changes, also run:
+For Swift or Kotlin library changes, also run:
 
 ```sh
 swift test --package-path swift
-./android/gradlew -p android :motion-gesture-core:test
+./android/gradlew -p android test
 ```
 
 ## Generated and recorded files

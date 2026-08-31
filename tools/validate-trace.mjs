@@ -786,6 +786,21 @@ async function validateTrace(options, validators) {
     );
   }
 
+  if (header.recorderLimits) {
+    const limits = header.recorderLimits;
+    if (
+      footer.durationNs > limits.maximumDurationNs ||
+      counts.samples > limits.maximumSamples ||
+      contracted.totalBytes > limits.maximumBytes
+    ) {
+      throw new TraceValidationError(
+        "recorderLimitMismatch",
+        `Trace exceeds declared recorder limits: duration=${footer.durationNs}/${limits.maximumDurationNs}, samples=${counts.samples}/${limits.maximumSamples}, bytes=${contracted.totalBytes}/${limits.maximumBytes}`,
+        { line: lineNumber }
+      );
+    }
+  }
+
   for (const reference of reviewedSourceAnnotationIds) {
     if (!annotationIds.has(reference.sourceId)) {
       throw new TraceValidationError(

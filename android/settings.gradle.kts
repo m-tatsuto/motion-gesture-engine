@@ -16,3 +16,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "motion-gesture-engine-android"
 include(":motion-gesture-core")
+include(":motion-gesture-recorder")
