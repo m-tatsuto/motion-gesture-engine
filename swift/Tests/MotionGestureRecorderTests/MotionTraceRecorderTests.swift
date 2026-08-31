@@ -146,9 +146,9 @@ final class MotionTraceRecorderTests: XCTestCase {
       )
     )
     XCTAssertEqual(try recorder.append(unknown).droppedReason, .unsupported)
-    XCTAssertTrue(try recorder.append(sample(timestampNs: 10, sequence: 0)).accepted)
+    XCTAssertTrue(try recorder.append(sample(timestampNs: 10, sequence: 2)).accepted)
     XCTAssertEqual(
-      try recorder.append(sample(timestampNs: 11, sequence: 0)).droppedReason,
+      try recorder.append(sample(timestampNs: 11, sequence: 2)).droppedReason,
       .nonMonotonicTimestamp
     )
 

@@ -51,7 +51,7 @@ Platform sensor
 
 Consent, authentication, upload endpoints, private storage, retention, and user feedback belong to the integrating application. Raw user-submitted traces must never be published automatically.
 
-See the [Core specification v1](spec/v1/core.md), [Wire format v1](spec/v1/wire-format.md), [Design principles](docs/design-principles.md), [Legacy baseline](docs/legacy-gravity-threshold-v1.md), [Recorder contract](docs/recorder-v1.md), and the [Roadmap](ROADMAP.md). Work is tracked in the [v0.1 epic](https://github.com/m-tatsuto/motion-gesture-engine/issues/1) and [Measurement Foundation milestone](https://github.com/m-tatsuto/motion-gesture-engine/milestone/1).
+See the [Core specification v1](spec/v1/core.md), [Wire format v1](spec/v1/wire-format.md), [Design principles](docs/design-principles.md), [Legacy baseline](docs/legacy-gravity-threshold-v1.md), [Recorder contract](docs/recorder-v1.md), [Core Motion adapter](docs/core-motion-recorder-adapter.md), and the [Roadmap](ROADMAP.md). Work is tracked in the [v0.1 epic](https://github.com/m-tatsuto/motion-gesture-engine/issues/1) and [Measurement Foundation milestone](https://github.com/m-tatsuto/motion-gesture-engine/milestone/1).
 
 ## Module layout
 
@@ -60,6 +60,7 @@ spec/                         JSON Schemas and normative documentation
 swift/                        Swift Package
   MotionGestureCore
   MotionGestureRecorder
+  MotionGestureCoreMotion
   MotionGestureReplay
 android/                      Kotlin/Android libraries
   motion-gesture-core
@@ -69,7 +70,7 @@ tools/motion-eval/            Platform-neutral evaluator CLI
 fixtures/                     Synthetic and reviewed golden traces
 ```
 
-The Swift and Kotlin core modules contain the immutable `LegacyGravityThresholdV1` baseline. Their recorder modules stream bounded Motion Trace v1 JSONL to atomic local outputs. Platform sensor adapters, replay, and evaluator modules will be introduced through the remaining v0.1 roadmap issues.
+The Swift and Kotlin core modules contain the immutable `LegacyGravityThresholdV1` baseline. Their recorder modules stream bounded Motion Trace v1 JSONL to atomic local outputs. The iOS `MotionGestureCoreMotion` module records fused device motion through an injectable, UI-independent adapter. Android Sensors, replay, and evaluator modules will be introduced through the remaining v0.1 roadmap issues.
 
 ## Library development
 
@@ -80,7 +81,7 @@ swift test --package-path swift
 ./android/gradlew -p android test
 ```
 
-Both core suites execute the same synthetic detector characterization fixture. Recorder tests use identical scenarios for normal completion, bounds, cancellation, malformed and unsupported input, backpressure, writer failure, and injectable sources.
+Both core suites execute the same synthetic detector characterization fixture. Recorder tests use identical scenarios for normal completion, bounds, cancellation, malformed and unsupported input, backpressure, writer failure, and injectable sources. Core Motion tests use a fake driver to verify availability, timestamp conversion, orientation ordering, requested-versus-observed timing, quaternion transforms, and source failure without Apple hardware.
 
 ## Privacy
 
