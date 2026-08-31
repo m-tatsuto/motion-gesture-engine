@@ -425,6 +425,24 @@ data class MotionSample(
 )
 
 @Serializable
+data class MotionDisplayRotationChange(
+    val recordType: String = "displayRotationChange",
+    val timestampNs: Long,
+    val changeSequence: Long,
+    val displayRotationClockwise: Int,
+)
+
+@Serializable
+data class MotionCapabilityChange(
+    val recordType: String = "capabilityChange",
+    val timestampNs: Long,
+    val changeSequence: Long,
+    val capabilityId: String,
+    val availability: MotionCapabilityAvailability? = null,
+    val accuracy: MotionAccuracy? = null,
+)
+
+@Serializable
 enum class MotionAnnotationKind {
     @SerialName("gestureIntent")
     GESTURE_INTENT,

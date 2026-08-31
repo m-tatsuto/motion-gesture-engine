@@ -137,6 +137,94 @@ class MotionTraceRecorderTest {
     }
 
     @Test
+    fun runtimeChangesAreSerializedAndUpdateCapabilityAvailability() {
+        val output = MemoryTraceOutput()
+        val recorder = MotionTraceRecorder(metadata(), limits(), output)
+        recorder.start()
+        assertTrue(recorder.append(sample(0, 0)).accepted)
+        assertTrue(
+            recorder.append(
+                MotionDisplayRotationChange(
+                    timestampNs = 10,
+                    changeSequence = 0,
+                    displayRotationClockwise = 90,
+                ),
+            ).accepted,
+        )
+        assertTrue(
+            recorder.append(
+                MotionCapabilityChange(
+                    timestampNs = 10,
+                    changeSequence = 0,
+                    capabilityId = "gravity.main",
+                    availability = MotionCapabilityAvailability.UNAVAILABLE,
+                    accuracy = MotionAccuracy(MotionAccuracyLevel.UNRELIABLE, nativeValue = 0),
+                ),
+            ).accepted,
+        )
+        assertEquals(DroppedSampleReason.UNSUPPORTED, recorder.append(sample(11, 1)).droppedReason)
+        assertTrue(
+            recorder.append(
+                MotionCapabilityChange(
+                    timestampNs = 12,
+                    changeSequence = 1,
+                    capabilityId = "gravity.main",
+                    availability = MotionCapabilityAvailability.AVAILABLE,
+                ),
+            ).accepted,
+        )
+        assertTrue(recorder.append(sample(12, 2)).accepted)
+
+        val result = recorder.finish(20)
+        assertEquals(2, result.footer.recordCounts.samples)
+        assertEquals(1, result.footer.recordCounts.displayRotationChanges)
+        assertEquals(2, result.footer.recordCounts.capabilityChanges)
+        assertEquals(1, result.footer.droppedSamples.total)
+        assertEquals(
+            listOf(
+                "traceHeader",
+                "sample",
+                "displayRotationChange",
+                "capabilityChange",
+                "capabilityChange",
+                "sample",
+                "traceFooter",
+            ),
+            jsonRecords(output.data.toByteArray()).map { it["recordType"]?.jsonPrimitive?.content },
+        )
+    }
+
+    @Test
+    fun runtimeChangeTimeAndSequenceMustAdvance() {
+        val recorder = MotionTraceRecorder(metadata(), limits(), MemoryTraceOutput())
+        recorder.start()
+        recorder.append(MotionDisplayRotationChange(timestampNs = 10, changeSequence = 0, displayRotationClockwise = 90))
+
+        val sequenceError = assertFailsWith<MotionTraceRecorderException> {
+            recorder.append(
+                MotionDisplayRotationChange(
+                    timestampNs = 11,
+                    changeSequence = 0,
+                    displayRotationClockwise = 180,
+                ),
+            )
+        }
+        assertEquals(MotionTraceRecorderErrorCode.INVALID_SAMPLE, sequenceError.code)
+
+        val timeError = assertFailsWith<MotionTraceRecorderException> {
+            recorder.append(
+                MotionCapabilityChange(
+                    timestampNs = 9,
+                    changeSequence = 0,
+                    capabilityId = "gravity.main",
+                    accuracy = MotionAccuracy(MotionAccuracyLevel.HIGH, nativeValue = 3),
+                ),
+            )
+        }
+        assertEquals(MotionTraceRecorderErrorCode.INVALID_SAMPLE, timeError.code)
+    }
+
+    @Test
     fun malformedUnsupportedAndNonMonotonicSamplesAreReported() {
         val recorder = MotionTraceRecorder(metadata(), limits(), MemoryTraceOutput())
         recorder.start()
