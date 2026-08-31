@@ -113,10 +113,6 @@ class MotionTraceRecorder(
             SampleValidationResult.Valid -> Unit
         }
 
-        if (lastSampleSequence == null && sample.sequence != 0L) {
-            incrementDrop(DroppedSampleReason.NON_MONOTONIC_TIMESTAMP)
-            return MotionTraceAppendOutcome(false, DroppedSampleReason.NON_MONOTONIC_TIMESTAMP)
-        }
         val previousTimestamp = lastSampleTimestampNs
         val previousSequence = lastSampleSequence
         if (previousTimestamp != null && previousSequence != null &&

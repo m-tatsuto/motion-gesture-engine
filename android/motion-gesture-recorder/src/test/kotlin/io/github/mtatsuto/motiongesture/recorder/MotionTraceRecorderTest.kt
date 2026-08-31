@@ -156,10 +156,10 @@ class MotionTraceRecorderTest {
             ),
         )
         assertEquals(DroppedSampleReason.UNSUPPORTED, recorder.append(unknown).droppedReason)
-        assertTrue(recorder.append(sample(10, 0)).accepted)
+        assertTrue(recorder.append(sample(10, 2)).accepted)
         assertEquals(
             DroppedSampleReason.NON_MONOTONIC_TIMESTAMP,
-            recorder.append(sample(11, 0)).droppedReason,
+            recorder.append(sample(11, 2)).droppedReason,
         )
 
         val result = recorder.finish(20)

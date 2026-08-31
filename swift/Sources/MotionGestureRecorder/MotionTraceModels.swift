@@ -504,6 +504,23 @@ public struct MotionSample: Encodable, Equatable, Sendable {
   }
 }
 
+public struct MotionDisplayRotationChange: Encodable, Equatable, Sendable {
+  public let recordType = "displayRotationChange"
+  public let timestampNs: Int64
+  public let changeSequence: Int64
+  public let displayRotationClockwise: DisplayRotationClockwise
+
+  public init(
+    timestampNs: Int64,
+    changeSequence: Int64,
+    displayRotationClockwise: DisplayRotationClockwise
+  ) {
+    self.timestampNs = timestampNs
+    self.changeSequence = changeSequence
+    self.displayRotationClockwise = displayRotationClockwise
+  }
+}
+
 public enum MotionAnnotationKind: String, Codable, Sendable {
   case gestureIntent
   case gestureOnset

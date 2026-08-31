@@ -6,7 +6,7 @@ The Swift `MotionGestureRecorder` and Kotlin `motion-gesture-recorder` modules i
 
 The recorder accepts canonical device-frame samples and explicit annotations. Platform sensor access, coordinate conversion, consent UI, authentication, upload, retention, and user-facing feedback remain outside this module. Recorder production sources do not import an HTTP, analytics, authentication, or cloud-storage client.
 
-Issue #6 and Issue #7 own the Core Motion and Android Sensors adapters. Those adapters may append callbacks directly or bridge them through the injectable `MotionSampleSource` pull contract used by deterministic tests.
+The `MotionGestureCoreMotion` module provides the Core Motion adapter described in Issue #6. Issue #7 owns the Android Sensors adapter. Platform adapters may append callbacks directly or bridge them through an injectable source contract used by deterministic tests.
 
 ## Lifecycle
 
@@ -46,7 +46,7 @@ If a body write fails, the recorder closes and preserves the partial file for di
 The recorder checks each sample before encoding:
 
 - timestamp and sequence are non-negative wire-safe integers;
-- the first accepted sequence is `0`, later accepted sequences strictly increase, and timestamps never move backward;
+- accepted sequences strictly increase, source-assigned gaps (including rejected observations before the first accepted sample) are preserved, and timestamps never move backward;
 - at least one signal is present and every number is finite;
 - every observation references an available capability with the matching signal kind;
 - attitude has a declared reference frame and a quaternion within the v1 norm tolerance.

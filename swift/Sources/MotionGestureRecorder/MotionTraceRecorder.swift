@@ -58,6 +58,7 @@ public final class MotionTraceRecorder {
   private var capabilities: [String: MotionCapability] = [:]
   private var lastSampleTimestampNs: Int64?
   private var lastSampleSequence: Int64?
+  private var lastDisplayRotationChangeSequence: Int64?
   private var maximumRecordTimestampNs: Int64 = 0
   private var annotationIds = Set<String>()
 
@@ -159,10 +160,6 @@ public final class MotionTraceRecorder {
       break
     }
 
-    if lastSampleSequence == nil, sample.sequence != 0 {
-      incrementDrop(.nonMonotonicTimestamp)
-      return MotionTraceAppendOutcome(accepted: false, droppedReason: .nonMonotonicTimestamp)
-    }
     if let previousTimestamp = lastSampleTimestampNs,
       let previousSequence = lastSampleSequence,
       sample.timestampNs < previousTimestamp || sample.sequence <= previousSequence
@@ -295,6 +292,70 @@ public final class MotionTraceRecorder {
     annotationIds.insert(annotation.annotationId)
     maximumRecordTimestampNs = max(maximumRecordTimestampNs, recordEnd)
     if recordEnd >= limits.maximumDurationNs {
+      let result = try finalize(
+        status: .bounded,
+        reason: .durationLimit,
+        durationNs: limits.maximumDurationNs
+      )
+      return MotionTraceAppendOutcome(accepted: true, recordingResult: result)
+    }
+    return MotionTraceAppendOutcome(accepted: true)
+  }
+
+  @discardableResult
+  public func append(_ change: MotionDisplayRotationChange) throws -> MotionTraceAppendOutcome {
+    lock.lock()
+    defer { lock.unlock() }
+    try requireRecording(operation: "append display rotation change")
+    guard MotionTraceValidation.isSafeInteger(change.timestampNs),
+      MotionTraceValidation.isSafeInteger(change.changeSequence),
+      change.timestampNs >= maximumRecordTimestampNs,
+      lastDisplayRotationChangeSequence.map({ change.changeSequence > $0 }) ?? true
+    else {
+      throw MotionTraceRecorderError(
+        code: .invalidSample,
+        stage: .append,
+        diagnostic: "display rotation change time or sequence is invalid"
+      )
+    }
+
+    if change.timestampNs > limits.maximumDurationNs {
+      let result = try finalize(
+        status: .bounded,
+        reason: .durationLimit,
+        durationNs: limits.maximumDurationNs
+      )
+      return MotionTraceAppendOutcome(accepted: false, recordingResult: result)
+    }
+
+    let line = try encoder.line(for: change)
+    guard canWriteBody(line) else {
+      let result = try finalize(
+        status: .bounded, reason: .byteLimit, durationNs: maximumRecordTimestampNs)
+      return MotionTraceAppendOutcome(accepted: false, recordingResult: result)
+    }
+    do {
+      guard try output.write(line) == .written else {
+        throw MotionTraceRecorderError(
+          code: .ioFailure,
+          stage: .append,
+          diagnostic: "display rotation change write encountered backpressure"
+        )
+      }
+    } catch let error as MotionTraceRecorderError {
+      failWithoutFooter(error)
+      throw error
+    } catch {
+      let recorderError = ioError(stage: .append, underlying: error)
+      failWithoutFooter(recorderError)
+      throw recorderError
+    }
+
+    bytesWritten += line.count.int64
+    counts.displayRotationChanges += 1
+    lastDisplayRotationChangeSequence = change.changeSequence
+    maximumRecordTimestampNs = max(maximumRecordTimestampNs, change.timestampNs)
+    if change.timestampNs >= limits.maximumDurationNs {
       let result = try finalize(
         status: .bounded,
         reason: .durationLimit,
