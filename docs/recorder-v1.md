@@ -6,14 +6,14 @@ The Swift `MotionGestureRecorder` and Kotlin `motion-gesture-recorder` modules i
 
 The recorder accepts canonical device-frame samples and explicit annotations. Platform sensor access, coordinate conversion, consent UI, authentication, upload, retention, and user-facing feedback remain outside this module. Recorder production sources do not import an HTTP, analytics, authentication, or cloud-storage client.
 
-The `MotionGestureCoreMotion` module provides the Core Motion adapter described in Issue #6. Issue #7 owns the Android Sensors adapter. Platform adapters may append callbacks directly or bridge them through an injectable source contract used by deterministic tests.
+The `MotionGestureCoreMotion` and `motion-gesture-android-sensors` modules provide the platform adapters described in Issues #6 and #7. Platform adapters append callbacks through injectable driver contracts used by deterministic tests.
 
 ## Lifecycle
 
 | State | Operation | Result |
 | --- | --- | --- |
 | `idle` | `start` | Validates metadata and bounds, creates a partial output, writes the header, and enters `recording`. |
-| `recording` | append sample or annotation | Streams one JSONL record or reports a rejection. |
+| `recording` | append sample, annotation, display change, or capability change | Streams one JSONL record or reports a rejection. |
 | `recording` | `finish` | Writes a `complete` or reached-bound footer and commits. |
 | `recording` | `cancel` | Writes a `cancelled` footer and commits a finalized-incomplete trace. |
 | `recording` | source failure | Writes a `failed` footer and commits a finalized-incomplete trace when the writer still works. |
@@ -53,8 +53,8 @@ The recorder checks each sample before encoding:
 
 Rejected samples do not advance ordering or observed-timing state. The footer aggregates bounded counters for `malformed`, `nonMonotonicTimestamp`, `bufferOverflow`, `writerBackpressure`, `limitReached`, `sourceFailure`, `unsupported`, and `other`. Source adapters can report their own dropped samples explicitly; the recorder never converts a missing sample into a zero vector.
 
-Observed timing is derived only from accepted observations, independently for each declared capability. Annotation shape, provenance, interval direction, UUID, and privacy declarations are validated before writing.
+Observed timing is derived only from accepted observations, independently for each declared capability. Runtime availability changes update subsequent sample validation without rewriting the immutable header. Display-rotation and capability-change timestamps cannot move behind an already written record, and each change record type has a strictly increasing sequence. Annotation shape, provenance, interval direction, UUID, and privacy declarations are validated before writing.
 
 ## Current exclusions
 
-V1 currently writes uncompressed JSONL with `sampleReordering.kind = none`. Gzip wrapping, bounded reorder buffers, platform sensor callbacks, uploads, and feedback transport are separate layers and must not be inferred from a successful local recording.
+V1 currently writes uncompressed JSONL with `sampleReordering.kind = none`. Gzip wrapping, bounded reorder buffers, uploads, and feedback transport are separate layers and must not be inferred from a successful local recording.

@@ -111,6 +111,7 @@ internal object MotionTraceValidation {
     fun validate(
         sample: MotionSample,
         capabilities: Map<String, MotionCapability>,
+        capabilityAvailability: Map<String, MotionCapabilityAvailability>,
         attitudeReferencePresent: Boolean,
     ): SampleValidationResult {
         if (!isSafe(sample.timestampNs) || !isSafe(sample.sequence)) {
@@ -125,7 +126,9 @@ internal object MotionTraceValidation {
             }
             val capability = capabilities[capabilityId]
                 ?: return SampleValidationResult.Unsupported("unknown capability $capabilityId")
-            if (capability.signalKind != signalKind || capability.availability != MotionCapabilityAvailability.AVAILABLE) {
+            if (capability.signalKind != signalKind ||
+                capabilityAvailability[capabilityId] != MotionCapabilityAvailability.AVAILABLE
+            ) {
                 return SampleValidationResult.Unsupported("capability $capabilityId cannot provide $signalKind")
             }
         }
@@ -144,6 +147,28 @@ internal object MotionTraceValidation {
             }
         }
         return SampleValidationResult.Valid
+    }
+
+    fun validate(change: MotionDisplayRotationChange) {
+        requireSample(change.recordType == "displayRotationChange") {
+            "display rotation change has an invalid recordType"
+        }
+        requireSample(change.displayRotationClockwise in setOf(0, 90, 180, 270)) {
+            "display rotation must be 0, 90, 180, or 270"
+        }
+    }
+
+    fun validate(change: MotionCapabilityChange, capabilities: Map<String, MotionCapability>) {
+        requireSample(change.recordType == "capabilityChange") {
+            "capability change has an invalid recordType"
+        }
+        validateIdentifier(change.capabilityId, "capabilityId", sample = true)
+        requireSample(change.capabilityId in capabilities) {
+            "capability change references unknown capability ${change.capabilityId}"
+        }
+        requireSample(change.availability != null || change.accuracy != null) {
+            "capability change must contain availability or accuracy"
+        }
     }
 
     fun validate(annotation: MotionAnnotation, privacy: MotionTracePrivacy) {

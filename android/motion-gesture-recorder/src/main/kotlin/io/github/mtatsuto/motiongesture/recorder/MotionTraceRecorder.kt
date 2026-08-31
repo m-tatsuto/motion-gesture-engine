@@ -1,6 +1,7 @@
 package io.github.mtatsuto.motiongesture.recorder
 
 import java.nio.file.Path
+import kotlinx.serialization.KSerializer
 
 data class MotionTraceRecordingResult(
     val footer: MotionTraceFooter,
@@ -54,8 +55,11 @@ class MotionTraceRecorder(
     private val droppedCounts = mutableMapOf<DroppedSampleReason, Long>()
     private val timing = mutableMapOf<String, TimingAccumulator>()
     private var capabilities = emptyMap<String, MotionCapability>()
+    private val capabilityAvailability = mutableMapOf<String, MotionCapabilityAvailability>()
     private var lastSampleTimestampNs: Long? = null
     private var lastSampleSequence: Long? = null
+    private var lastDisplayRotationChangeSequence: Long? = null
+    private var lastCapabilityChangeSequence: Long? = null
     private var maximumRecordTimestampNs: Long = 0
     private val annotationIds = mutableSetOf<String>()
 
@@ -66,7 +70,10 @@ class MotionTraceRecorder(
             MotionTraceValidation.validate(limits)
             MotionTraceValidation.validate(metadata)
             capabilities = metadata.capabilities.associateBy(MotionCapability::capabilityId)
-            metadata.capabilities.forEach { timing[it.capabilityId] = TimingAccumulator(it.capabilityId) }
+            metadata.capabilities.forEach {
+                timing[it.capabilityId] = TimingAccumulator(it.capabilityId)
+                capabilityAvailability[it.capabilityId] = it.availability
+            }
 
             val header = MotionTraceHeader(metadata, limits)
             val headerLine = encoder.line(MotionTraceHeader.serializer(), header)
@@ -99,6 +106,7 @@ class MotionTraceRecorder(
             MotionTraceValidation.validate(
                 sample,
                 capabilities,
+                capabilityAvailability,
                 metadata.session.attitudeReference != null,
             )
         ) {
@@ -185,6 +193,59 @@ class MotionTraceRecorder(
             )
         }
         return MotionTraceAppendOutcome(true)
+    }
+
+    @Synchronized
+    fun append(change: MotionDisplayRotationChange): MotionTraceAppendOutcome {
+        requireRecording("append display rotation change")
+        MotionTraceValidation.validate(change)
+        if (!MotionTraceValidation.isSafe(change.timestampNs) ||
+            !MotionTraceValidation.isSafe(change.changeSequence) ||
+            change.timestampNs < maximumRecordTimestampNs ||
+            lastDisplayRotationChangeSequence?.let { change.changeSequence <= it } == true
+        ) {
+            throw MotionTraceRecorderException(
+                MotionTraceRecorderErrorCode.INVALID_SAMPLE,
+                MotionTraceRecorderStage.APPEND,
+                "display rotation change time or sequence is invalid",
+            )
+        }
+        return appendChangeRecord(
+            change,
+            MotionDisplayRotationChange.serializer(),
+            change.timestampNs,
+            "display rotation change",
+        ) {
+            counts.displayRotationChanges += 1
+            lastDisplayRotationChangeSequence = change.changeSequence
+        }
+    }
+
+    @Synchronized
+    fun append(change: MotionCapabilityChange): MotionTraceAppendOutcome {
+        requireRecording("append capability change")
+        MotionTraceValidation.validate(change, capabilities)
+        if (!MotionTraceValidation.isSafe(change.timestampNs) ||
+            !MotionTraceValidation.isSafe(change.changeSequence) ||
+            change.timestampNs < maximumRecordTimestampNs ||
+            lastCapabilityChangeSequence?.let { change.changeSequence <= it } == true
+        ) {
+            throw MotionTraceRecorderException(
+                MotionTraceRecorderErrorCode.INVALID_SAMPLE,
+                MotionTraceRecorderStage.APPEND,
+                "capability change time or sequence is invalid",
+            )
+        }
+        return appendChangeRecord(
+            change,
+            MotionCapabilityChange.serializer(),
+            change.timestampNs,
+            "capability change",
+        ) {
+            counts.capabilityChanges += 1
+            lastCapabilityChangeSequence = change.changeSequence
+            change.availability?.let { capabilityAvailability[change.capabilityId] = it }
+        }
     }
 
     @Synchronized
@@ -406,6 +467,75 @@ class MotionTraceRecorder(
         sample.signals.observations.forEach { (_, capabilityId, _) ->
             timing[capabilityId]?.observe(sample.timestampNs)
         }
+    }
+
+    private fun <T> appendChangeRecord(
+        change: T,
+        serializer: KSerializer<T>,
+        timestampNs: Long,
+        diagnosticName: String,
+        onAccepted: () -> Unit,
+    ): MotionTraceAppendOutcome {
+        if (timestampNs > limits.maximumDurationNs) {
+            return MotionTraceAppendOutcome(
+                false,
+                recordingResult = finalize(
+                    MotionTraceFinalizationStatus.BOUNDED,
+                    MotionTraceTerminationReason.DURATION_LIMIT,
+                    durationNs = limits.maximumDurationNs,
+                ),
+            )
+        }
+        val line = try {
+            encoder.line(serializer, change)
+        } catch (error: Throwable) {
+            throw MotionTraceRecorderException(
+                MotionTraceRecorderErrorCode.INVALID_SAMPLE,
+                MotionTraceRecorderStage.APPEND,
+                "$diagnosticName could not be encoded",
+                cause = error,
+            )
+        }
+        if (!canWriteBody(line)) {
+            return MotionTraceAppendOutcome(
+                false,
+                recordingResult = finalize(
+                    MotionTraceFinalizationStatus.BOUNDED,
+                    MotionTraceTerminationReason.BYTE_LIMIT,
+                    durationNs = maximumRecordTimestampNs,
+                ),
+            )
+        }
+        try {
+            if (output.write(line) != MotionTraceWriteDisposition.WRITTEN) {
+                throw MotionTraceRecorderException(
+                    MotionTraceRecorderErrorCode.IO_FAILURE,
+                    MotionTraceRecorderStage.APPEND,
+                    "$diagnosticName write encountered backpressure",
+                )
+            }
+        } catch (error: MotionTraceRecorderException) {
+            failWithoutFooter(error)
+            throw error
+        } catch (error: Throwable) {
+            val recorderError = ioError(MotionTraceRecorderStage.APPEND, error)
+            failWithoutFooter(recorderError)
+            throw recorderError
+        }
+        bytesWritten += line.size
+        onAccepted()
+        maximumRecordTimestampNs = maxOf(maximumRecordTimestampNs, timestampNs)
+        if (timestampNs >= limits.maximumDurationNs) {
+            return MotionTraceAppendOutcome(
+                true,
+                recordingResult = finalize(
+                    MotionTraceFinalizationStatus.BOUNDED,
+                    MotionTraceTerminationReason.DURATION_LIMIT,
+                    durationNs = limits.maximumDurationNs,
+                ),
+            )
+        }
+        return MotionTraceAppendOutcome(true)
     }
 
     private fun droppedSummary(): DroppedSampleSummary {
