@@ -10,4 +10,4 @@ All fixtures in this directory are synthetic. They contain no recordings or iden
 - `invalid/forbidden-fields.cases.json` proves that identity, location, media, and unrelated log fields are rejected.
 - `invalid/container.cases.json` covers UTF-8, LF, BOM, blank-line, and gzip-integrity failures.
 
-`manifest.json` is the machine-readable expectation list used by the reference validator.
+`manifest.json` is the machine-readable expectation list used by the reference validator. It also includes the synthetic finalized traces under `fixtures/replay` so replay inputs and derived prediction streams remain part of schema conformance testing.

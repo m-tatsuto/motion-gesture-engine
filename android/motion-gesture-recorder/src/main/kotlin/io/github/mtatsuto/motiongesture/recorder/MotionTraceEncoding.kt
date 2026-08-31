@@ -6,7 +6,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 @Serializable
-internal data class MotionTraceConventions(
+data class MotionTraceConventions(
     val storedVectorFrame: String = "deviceD",
     val gravityUnit: String = "standardGravity",
     val userAccelerationUnit: String = "standardGravity",
@@ -21,15 +21,18 @@ internal data class MotionTraceConventions(
 )
 
 @Serializable
-internal data class MotionTraceSampleReordering(val kind: String = "none")
+data class MotionTraceSampleReordering(
+    val kind: String = "none",
+    val maximumLatenessNs: Long? = null,
+)
 
 @Serializable
-internal data class MotionTraceOrderingPolicy(
+data class MotionTraceOrderingPolicy(
     val sampleReordering: MotionTraceSampleReordering = MotionTraceSampleReordering(),
 )
 
 @Serializable
-internal data class MotionTraceHeader(
+data class MotionTraceHeader(
     val recordType: String = "traceHeader",
     val schemaVersion: String = MotionTraceV1.SCHEMA_VERSION,
     val coreSpecVersion: String = MotionTraceV1.CORE_SPEC_VERSION,
@@ -38,7 +41,7 @@ internal data class MotionTraceHeader(
     val privacy: MotionTracePrivacy,
     val conventions: MotionTraceConventions = MotionTraceConventions(),
     val orderingPolicy: MotionTraceOrderingPolicy = MotionTraceOrderingPolicy(),
-    val recorderLimits: MotionTraceRecorderLimits,
+    val recorderLimits: MotionTraceRecorderLimits? = null,
     val session: MotionTraceSession,
     val capabilities: List<MotionCapability>,
     val detectors: List<MotionDetectorDescriptor>? = null,

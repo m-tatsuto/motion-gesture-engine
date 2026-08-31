@@ -12,6 +12,18 @@
     {
       "path": "valid/cancelled.mge.jsonl",
       "expectedTraceState": "finalizedIncomplete"
+    },
+    {
+      "path": "../replay/legacy-gravity-threshold-v1.mge.jsonl",
+      "expectedTraceState": "finalizedComplete"
+    },
+    {
+      "path": "../replay/empty.mge.jsonl",
+      "expectedTraceState": "finalizedComplete"
+    },
+    {
+      "path": "../replay/legacy-gravity-threshold-v1.with-predictions.mge.jsonl",
+      "expectedTraceState": "finalizedComplete"
     }
   ],
   "invalid": [

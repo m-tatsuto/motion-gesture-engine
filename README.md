@@ -51,7 +51,7 @@ Platform sensor
 
 Consent, authentication, upload endpoints, private storage, retention, and user feedback belong to the integrating application. Raw user-submitted traces must never be published automatically.
 
-See the [Core specification v1](spec/v1/core.md), [Wire format v1](spec/v1/wire-format.md), [Design principles](docs/design-principles.md), [Legacy baseline](docs/legacy-gravity-threshold-v1.md), [Recorder contract](docs/recorder-v1.md), [Core Motion adapter](docs/core-motion-recorder-adapter.md), [Android Sensors adapter](docs/android-sensors-recorder-adapter.md), and the [Roadmap](ROADMAP.md). Work is tracked in the [v0.1 epic](https://github.com/m-tatsuto/motion-gesture-engine/issues/1) and [Measurement Foundation milestone](https://github.com/m-tatsuto/motion-gesture-engine/milestone/1).
+See the [Core specification v1](spec/v1/core.md), [Wire format v1](spec/v1/wire-format.md), [Design principles](docs/design-principles.md), [Legacy baseline](docs/legacy-gravity-threshold-v1.md), [Recorder contract](docs/recorder-v1.md), [Core Motion adapter](docs/core-motion-recorder-adapter.md), [Android Sensors adapter](docs/android-sensors-recorder-adapter.md), [Replay contract](docs/replay-v1.md), and the [Roadmap](ROADMAP.md). Work is tracked in the [v0.1 epic](https://github.com/m-tatsuto/motion-gesture-engine/issues/1) and [Measurement Foundation milestone](https://github.com/m-tatsuto/motion-gesture-engine/milestone/1).
 
 ## Module layout
 
@@ -71,7 +71,7 @@ tools/motion-eval/            Platform-neutral evaluator CLI
 fixtures/                     Synthetic and reviewed golden traces
 ```
 
-The Swift and Kotlin core modules contain the immutable `LegacyGravityThresholdV1` baseline. Their recorder modules stream bounded Motion Trace v1 JSONL to atomic local outputs. The iOS `MotionGestureCoreMotion` module records fused device motion through an injectable, UI-independent adapter. The Android `motion-gesture-android-sensors` module records independent SensorManager callbacks through the same kind of injectable boundary. Replay and evaluator modules will be introduced through the remaining v0.1 roadmap issues.
+The Swift and Kotlin core modules contain the immutable `LegacyGravityThresholdV1` baseline. Their recorder modules stream bounded Motion Trace v1 JSONL to atomic local outputs. The iOS `MotionGestureCoreMotion` module records fused device motion through an injectable, UI-independent adapter. The Android `motion-gesture-android-sensors` module records independent SensorManager callbacks through the same kind of injectable boundary. The replay modules load finalized-complete traces, advance only by virtual monotonic time, and emit deterministic predicted-event records. The evaluator remains a later v0.1 roadmap item.
 
 ## Library development
 
@@ -82,7 +82,7 @@ swift test --package-path swift
 ./android/gradlew -p android test
 ```
 
-Both core suites execute the same synthetic detector characterization fixture. Recorder tests use identical scenarios for normal completion, bounds, cancellation, malformed and unsupported input, backpressure, writer failure, and injectable sources. Core Motion and Android Sensors tests use fake drivers to verify availability, timestamp conversion, orientation ordering, requested-versus-observed timing, quaternion transforms, and source failure without platform hardware.
+Both core suites execute the same synthetic detector characterization fixture. Recorder tests use identical scenarios for normal completion, bounds, cancellation, malformed and unsupported input, backpressure, writer failure, and injectable sources. Core Motion and Android Sensors tests use fake drivers to verify availability, timestamp conversion, orientation ordering, requested-versus-observed timing, quaternion transforms, and source failure without platform hardware. Replay tests use the same finalized traces and expected prediction records on Swift and Kotlin, including equal timestamps, sequence gaps, long virtual-time gaps, reset, empty traces, and typed load failures.
 
 ## Privacy
 
