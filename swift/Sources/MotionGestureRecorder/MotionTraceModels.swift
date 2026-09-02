@@ -491,21 +491,27 @@ public struct MotionSignals: Codable, Equatable, Sendable {
   }
 }
 
-public struct MotionSample: Encodable, Equatable, Sendable {
-  public let recordType = "sample"
+public struct MotionSample: Codable, Equatable, Sendable {
+  public let recordType: String
   public let timestampNs: Int64
   public let sequence: Int64
   public let signals: MotionSignals
 
-  public init(timestampNs: Int64, sequence: Int64, signals: MotionSignals) {
+  public init(
+    timestampNs: Int64,
+    sequence: Int64,
+    signals: MotionSignals,
+    recordType: String = "sample"
+  ) {
+    self.recordType = recordType
     self.timestampNs = timestampNs
     self.sequence = sequence
     self.signals = signals
   }
 }
 
-public struct MotionDisplayRotationChange: Encodable, Equatable, Sendable {
-  public let recordType = "displayRotationChange"
+public struct MotionDisplayRotationChange: Codable, Equatable, Sendable {
+  public let recordType: String
   public let timestampNs: Int64
   public let changeSequence: Int64
   public let displayRotationClockwise: DisplayRotationClockwise
@@ -513,11 +519,66 @@ public struct MotionDisplayRotationChange: Encodable, Equatable, Sendable {
   public init(
     timestampNs: Int64,
     changeSequence: Int64,
-    displayRotationClockwise: DisplayRotationClockwise
+    displayRotationClockwise: DisplayRotationClockwise,
+    recordType: String = "displayRotationChange"
   ) {
+    self.recordType = recordType
     self.timestampNs = timestampNs
     self.changeSequence = changeSequence
     self.displayRotationClockwise = displayRotationClockwise
+  }
+}
+
+public struct MotionCapabilityChange: Codable, Equatable, Sendable {
+  public let recordType: String
+  public let timestampNs: Int64
+  public let changeSequence: Int64
+  public let capabilityId: String
+  public let availability: MotionCapabilityAvailability?
+  public let accuracy: MotionAccuracy?
+
+  public init(
+    timestampNs: Int64,
+    changeSequence: Int64,
+    capabilityId: String,
+    availability: MotionCapabilityAvailability? = nil,
+    accuracy: MotionAccuracy? = nil,
+    recordType: String = "capabilityChange"
+  ) {
+    self.recordType = recordType
+    self.timestampNs = timestampNs
+    self.changeSequence = changeSequence
+    self.capabilityId = capabilityId
+    self.availability = availability
+    self.accuracy = accuracy
+  }
+}
+
+public struct MotionPredictedEventRecord: Codable, Equatable, Sendable {
+  public let recordType: String
+  public let eventId: String
+  public let detectorStreamId: String
+  public let eventSequence: Int64
+  public let timestampNs: Int64
+  public let gesture: Gesture
+  public let sourceSampleSequence: Int64?
+
+  public init(
+    eventId: String,
+    detectorStreamId: String,
+    eventSequence: Int64,
+    timestampNs: Int64,
+    gesture: Gesture,
+    sourceSampleSequence: Int64? = nil,
+    recordType: String = "predictedEvent"
+  ) {
+    self.recordType = recordType
+    self.eventId = eventId
+    self.detectorStreamId = detectorStreamId
+    self.eventSequence = eventSequence
+    self.timestampNs = timestampNs
+    self.gesture = gesture
+    self.sourceSampleSequence = sourceSampleSequence
   }
 }
 
@@ -587,8 +648,8 @@ public struct MotionUserReport: Codable, Equatable, Sendable {
   }
 }
 
-public struct MotionAnnotation: Encodable, Equatable, Sendable {
-  public let recordType = "annotation"
+public struct MotionAnnotation: Codable, Equatable, Sendable {
+  public let recordType: String
   public let annotationId: String
   public let annotationKind: MotionAnnotationKind
   public let timestampNs: Int64
@@ -604,8 +665,10 @@ public struct MotionAnnotation: Encodable, Equatable, Sendable {
     endTimestampNs: Int64? = nil,
     gesture: Gesture? = nil,
     provenance: MotionAnnotationProvenance,
-    report: MotionUserReport? = nil
+    report: MotionUserReport? = nil,
+    recordType: String = "annotation"
   ) {
+    self.recordType = recordType
     self.annotationId = annotationId
     self.annotationKind = annotationKind
     self.timestampNs = timestampNs
@@ -681,10 +744,12 @@ public struct MotionTraceRecordCounts: Codable, Equatable, Sendable {
 public struct DroppedSampleCount: Codable, Equatable, Sendable {
   public let reason: DroppedSampleReason
   public let count: Int64
+  public let capabilityId: String?
 
-  public init(reason: DroppedSampleReason, count: Int64) {
+  public init(reason: DroppedSampleReason, count: Int64, capabilityId: String? = nil) {
     self.reason = reason
     self.count = count
+    self.capabilityId = capabilityId
   }
 }
 
@@ -717,8 +782,8 @@ public struct MotionObservedTiming: Codable, Equatable, Sendable {
   }
 }
 
-public struct MotionTraceFooter: Encodable, Equatable, Sendable {
-  public let recordType = "traceFooter"
+public struct MotionTraceFooter: Codable, Equatable, Sendable {
+  public let recordType: String
   public let schemaVersion: String
   public let finalizationStatus: MotionTraceFinalizationStatus
   public let terminationReason: MotionTraceTerminationReason
@@ -737,8 +802,10 @@ public struct MotionTraceFooter: Encodable, Equatable, Sendable {
     recordCounts: MotionTraceRecordCounts,
     reorderedSamples: Int64 = 0,
     droppedSamples: DroppedSampleSummary,
-    observedTiming: [MotionObservedTiming]
+    observedTiming: [MotionObservedTiming],
+    recordType: String = "traceFooter"
   ) {
+    self.recordType = recordType
     schemaVersion = MotionTraceV1.schemaVersion
     self.finalizationStatus = finalizationStatus
     self.terminationReason = terminationReason

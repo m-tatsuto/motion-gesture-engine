@@ -21,6 +21,10 @@ let package = Package(
       name: "MotionGestureCoreMotion",
       targets: ["MotionGestureCoreMotion"]
     ),
+    .library(
+      name: "MotionGestureReplay",
+      targets: ["MotionGestureReplay"]
+    ),
   ],
   targets: [
     .target(name: "MotionGestureCore"),
@@ -33,6 +37,10 @@ let package = Package(
       dependencies: ["MotionGestureRecorder"],
       linkerSettings: [.linkedFramework("CoreMotion")]
     ),
+    .target(
+      name: "MotionGestureReplay",
+      dependencies: ["MotionGestureCore", "MotionGestureRecorder"]
+    ),
     .testTarget(
       name: "MotionGestureCoreTests",
       dependencies: ["MotionGestureCore"]
@@ -44,6 +52,10 @@ let package = Package(
     .testTarget(
       name: "MotionGestureCoreMotionTests",
       dependencies: ["MotionGestureCoreMotion"]
+    ),
+    .testTarget(
+      name: "MotionGestureReplayTests",
+      dependencies: ["MotionGestureReplay"]
     ),
   ]
 )

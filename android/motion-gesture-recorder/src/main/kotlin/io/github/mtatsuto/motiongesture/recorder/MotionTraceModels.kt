@@ -443,6 +443,17 @@ data class MotionCapabilityChange(
 )
 
 @Serializable
+data class MotionPredictedEventRecord(
+    val recordType: String = "predictedEvent",
+    val eventId: String,
+    val detectorStreamId: String,
+    val eventSequence: Long,
+    val timestampNs: Long,
+    val gesture: MotionTraceGesture,
+    val sourceSampleSequence: Long? = null,
+)
+
+@Serializable
 enum class MotionAnnotationKind {
     @SerialName("gestureIntent")
     GESTURE_INTENT,
@@ -620,7 +631,11 @@ data class MotionTraceRecordCounts(
 )
 
 @Serializable
-data class DroppedSampleCount(val reason: DroppedSampleReason, val count: Long)
+data class DroppedSampleCount(
+    val reason: DroppedSampleReason,
+    val count: Long,
+    val capabilityId: String? = null,
+)
 
 @Serializable
 data class DroppedSampleSummary(val total: Long, val byReason: List<DroppedSampleCount>)
