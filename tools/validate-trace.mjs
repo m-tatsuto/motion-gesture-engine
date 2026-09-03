@@ -10,7 +10,8 @@ import { TextDecoder } from "node:util";
 import { createGunzip, gzipSync } from "node:zlib";
 import path from "node:path";
 
-const PROJECT_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const MODULE_PATH = fileURLToPath(import.meta.url);
+const PROJECT_ROOT = path.resolve(path.dirname(MODULE_PATH), "..");
 const SCHEMA_DIR = path.join(PROJECT_ROOT, "spec", "v1", "schema");
 const FIXTURE_DIR = path.join(PROJECT_ROOT, "fixtures", "v1");
 const SUPPORTED_SCHEMA_VERSION = "1.0.0-draft.1";
@@ -29,7 +30,8 @@ const SCHEMA_FILES = [
   "motion-trace-header.schema.json",
   "motion-trace-footer.schema.json",
   "motion-trace-record.schema.json",
-  "motion-trace.schema.json"
+  "motion-trace.schema.json",
+  "motion-evaluation-report.schema.json"
 ];
 
 const SCHEMA_ID_BASE =
@@ -60,7 +62,7 @@ const SIGNAL_KIND_BY_FIELD = new Map([
   ["attitude", "attitude"]
 ]);
 
-class TraceValidationError extends Error {
+export class TraceValidationError extends Error {
   constructor(code, message, options = {}) {
     super(message);
     this.name = "TraceValidationError";
@@ -147,7 +149,7 @@ class JsonLinesContractTransform extends Transform {
   }
 }
 
-async function loadValidators() {
+export async function loadValidators() {
   const ajv = new Ajv2020({
     allErrors: true,
     strict: true,
@@ -257,10 +259,13 @@ function inputLabel(options) {
   return options.label ?? options.filePath ?? "<buffer>";
 }
 
-async function validateTrace(options, validators) {
+export async function validateTrace(options, validators) {
   const label = inputLabel(options);
+  const collectedRecordTypes = new Set(options.collectRecordTypes ?? []);
+  const records = [];
   const raw = sourceFromOptions(options);
-  const compressed = options.gzip ?? label.endsWith(".gz");
+  const compressed =
+    options.gzip ?? options.filePath?.endsWith(".gz") ?? label.endsWith(".gz");
   const contracted = new JsonLinesContractTransform();
   if (compressed) {
     const gunzip = createGunzip();
@@ -377,6 +382,10 @@ async function validateTrace(options, validators) {
         throw new TraceValidationError("schemaViolation", formatAjvErrors(validator.errors), {
           line: lineNumber
         });
+      }
+
+      if (collectedRecordTypes.has(record.recordType)) {
+        records.push(record);
       }
 
       if (record.recordType === "traceHeader") {
@@ -838,7 +847,8 @@ async function validateTrace(options, validators) {
         ? "finalizedComplete"
         : "finalizedIncomplete",
     recordCounts: counts,
-    droppedSamples: footer.droppedSamples.total
+    droppedSamples: footer.droppedSamples.total,
+    records
   };
 }
 
@@ -1041,7 +1051,9 @@ async function main() {
   process.exitCode = exitCode;
 }
 
-main().catch((error) => {
-  console.error(error.stack ?? error.message);
-  process.exitCode = 1;
-});
+if (process.argv[1] && path.resolve(process.argv[1]) === MODULE_PATH) {
+  main().catch((error) => {
+    console.error(error.stack ?? error.message);
+    process.exitCode = 1;
+  });
+}

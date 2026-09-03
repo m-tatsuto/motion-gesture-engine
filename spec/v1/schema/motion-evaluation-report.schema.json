@@ -1,0 +1,466 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/m-tatsuto/motion-gesture-engine/main/spec/v1/schema/motion-evaluation-report.schema.json",
+  "title": "Motion evaluation report v1",
+  "type": "object",
+  "required": [
+    "reportVersion",
+    "evaluator",
+    "matchingPolicy",
+    "dataset",
+    "detectors",
+    "overall",
+    "byGesture",
+    "groups",
+    "gates"
+  ],
+  "properties": {
+    "reportVersion": {
+      "const": "1.0.0-draft.1"
+    },
+    "evaluator": {
+      "type": "object",
+      "required": [
+        "name",
+        "version"
+      ],
+      "properties": {
+        "name": {
+          "const": "motion-eval"
+        },
+        "version": {
+          "$ref": "common.schema.json#/$defs/semanticVersion"
+        }
+      },
+      "additionalProperties": false
+    },
+    "matchingPolicy": {
+      "type": "object",
+      "required": [
+        "groundTruthAnnotationKind",
+        "groundTruthProvenance",
+        "latencyAnchor",
+        "algorithm",
+        "earlyToleranceNs",
+        "lateToleranceNs"
+      ],
+      "properties": {
+        "groundTruthAnnotationKind": {
+          "const": "gestureCommit"
+        },
+        "groundTruthProvenance": {
+          "const": "reviewedGroundTruth"
+        },
+        "latencyAnchor": {
+          "const": "gestureCommit.timestampNs"
+        },
+        "algorithm": {
+          "const": "earliestDeadlineMaximumCardinality"
+        },
+        "earlyToleranceNs": {
+          "$ref": "common.schema.json#/$defs/safeInteger"
+        },
+        "lateToleranceNs": {
+          "$ref": "common.schema.json#/$defs/safeInteger"
+        }
+      },
+      "additionalProperties": false
+    },
+    "dataset": {
+      "type": "object",
+      "required": [
+        "sessions",
+        "annotationSelection"
+      ],
+      "properties": {
+        "sessions": {
+          "$ref": "common.schema.json#/$defs/positiveSafeInteger"
+        },
+        "annotationSelection": {
+          "$ref": "#/$defs/annotationSelection"
+        }
+      },
+      "additionalProperties": false
+    },
+    "detectors": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/detector"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "overall": {
+      "$ref": "#/$defs/metricBlock"
+    },
+    "byGesture": {
+      "$ref": "#/$defs/byGesture"
+    },
+    "groups": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/group"
+      }
+    },
+    "gates": {
+      "$ref": "#/$defs/gates"
+    }
+  },
+  "$defs": {
+    "nullableRate": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 1
+    },
+    "nullableNonNegativeNumber": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "nullableSignedNanoseconds": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": -9007199254740991,
+      "maximum": 9007199254740991
+    },
+    "annotationSelection": {
+      "type": "object",
+      "required": [
+        "reviewedGestureCommits",
+        "reviewedNegativeWindows",
+        "ignoredReviewedAnnotations",
+        "ignoredByProvenance"
+      ],
+      "properties": {
+        "reviewedGestureCommits": {
+          "$ref": "common.schema.json#/$defs/safeInteger"
+        },
+        "reviewedNegativeWindows": {
+          "$ref": "common.schema.json#/$defs/safeInteger"
+        },
+        "ignoredReviewedAnnotations": {
+          "$ref": "common.schema.json#/$defs/safeInteger"
+        },
+        "ignoredByProvenance": {
+          "type": "object",
+          "required": [
+            "synthetic",
+            "contributor",
+            "userReport"
+          ],
+          "properties": {
+            "synthetic": {
+              "$ref": "common.schema.json#/$defs/safeInteger"
+            },
+            "contributor": {
+              "$ref": "common.schema.json#/$defs/safeInteger"
+            },
+            "userReport": {
+              "$ref": "common.schema.json#/$defs/safeInteger"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "detector": {
+      "type": "object",
+      "required": [
+        "detectorId",
+        "detectorVersion",
+        "configurationIdentity"
+      ],
+      "properties": {
+        "detectorId": {
+          "$ref": "common.schema.json#/$defs/identifier"
+        },
+        "detectorVersion": {
+          "$ref": "common.schema.json#/$defs/semanticVersion"
+        },
+        "configurationIdentity": {
+          "$ref": "common.schema.json#/$defs/identifier"
+        }
+      },
+      "additionalProperties": false
+    },
+    "events": {
+      "type": "object",
+      "required": [
+        "truePositives",
+        "falsePositives",
+        "falseNegatives"
+      ],
+      "properties": {
+        "truePositives": {
+          "$ref": "common.schema.json#/$defs/safeInteger"
+        },
+        "falsePositives": {
+          "$ref": "common.schema.json#/$defs/safeInteger"
+        },
+        "falseNegatives": {
+          "$ref": "common.schema.json#/$defs/safeInteger"
+        }
+      },
+      "additionalProperties": false
+    },
+    "rates": {
+      "type": "object",
+      "required": [
+        "precision",
+        "recall",
+        "f1",
+        "falsePositivesPerSession",
+        "falsePositivesPerNegativeHour"
+      ],
+      "properties": {
+        "precision": {
+          "$ref": "#/$defs/nullableRate"
+        },
+        "recall": {
+          "$ref": "#/$defs/nullableRate"
+        },
+        "f1": {
+          "$ref": "#/$defs/nullableRate"
+        },
+        "falsePositivesPerSession": {
+          "type": "number",
+          "minimum": 0
+        },
+        "falsePositivesPerNegativeHour": {
+          "$ref": "#/$defs/nullableNonNegativeNumber"
+        }
+      },
+      "additionalProperties": false
+    },
+    "latency": {
+      "type": "object",
+      "required": [
+        "matchedEvents",
+        "p50",
+        "p95"
+      ],
+      "properties": {
+        "matchedEvents": {
+          "$ref": "common.schema.json#/$defs/safeInteger"
+        },
+        "p50": {
+          "$ref": "#/$defs/nullableSignedNanoseconds"
+        },
+        "p95": {
+          "$ref": "#/$defs/nullableSignedNanoseconds"
+        }
+      },
+      "additionalProperties": false
+    },
+    "negativeExposure": {
+      "type": "object",
+      "required": [
+        "durationNs",
+        "falsePositives"
+      ],
+      "properties": {
+        "durationNs": {
+          "$ref": "common.schema.json#/$defs/safeInteger"
+        },
+        "falsePositives": {
+          "$ref": "common.schema.json#/$defs/safeInteger"
+        }
+      },
+      "additionalProperties": false
+    },
+    "negativeWindowClassification": {
+      "type": "object",
+      "required": [
+        "windows",
+        "trueNegatives",
+        "falsePositiveWindows",
+        "specificity",
+        "accuracy"
+      ],
+      "properties": {
+        "windows": {
+          "$ref": "common.schema.json#/$defs/positiveSafeInteger"
+        },
+        "trueNegatives": {
+          "$ref": "common.schema.json#/$defs/safeInteger"
+        },
+        "falsePositiveWindows": {
+          "$ref": "common.schema.json#/$defs/safeInteger"
+        },
+        "specificity": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "accuracy": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "metricBlock": {
+      "type": "object",
+      "required": [
+        "events",
+        "rates",
+        "latencyNs",
+        "negativeExposure"
+      ],
+      "properties": {
+        "events": {
+          "$ref": "#/$defs/events"
+        },
+        "rates": {
+          "$ref": "#/$defs/rates"
+        },
+        "latencyNs": {
+          "$ref": "#/$defs/latency"
+        },
+        "negativeExposure": {
+          "$ref": "#/$defs/negativeExposure"
+        },
+        "negativeWindowClassification": {
+          "$ref": "#/$defs/negativeWindowClassification"
+        }
+      },
+      "additionalProperties": false
+    },
+    "byGesture": {
+      "type": "object",
+      "required": [
+        "tiltForward",
+        "tiltBackward"
+      ],
+      "properties": {
+        "tiltForward": {
+          "$ref": "#/$defs/metricBlock"
+        },
+        "tiltBackward": {
+          "$ref": "#/$defs/metricBlock"
+        }
+      },
+      "additionalProperties": false
+    },
+    "group": {
+      "type": "object",
+      "required": [
+        "dimensions",
+        "sessions",
+        "overall",
+        "byGesture"
+      ],
+      "properties": {
+        "dimensions": {
+          "type": "object",
+          "properties": {
+            "detectorVersion": {
+              "$ref": "common.schema.json#/$defs/semanticVersion"
+            },
+            "platformFamily": {
+              "type": "string",
+              "enum": [
+                "ios",
+                "android",
+                "other",
+                "undeclared"
+              ]
+            }
+          },
+          "minProperties": 1,
+          "additionalProperties": false
+        },
+        "sessions": {
+          "$ref": "common.schema.json#/$defs/positiveSafeInteger"
+        },
+        "overall": {
+          "$ref": "#/$defs/metricBlock"
+        },
+        "byGesture": {
+          "$ref": "#/$defs/byGesture"
+        }
+      },
+      "additionalProperties": false
+    },
+    "gateCheck": {
+      "type": "object",
+      "required": [
+        "name",
+        "comparator",
+        "threshold",
+        "actual",
+        "passed"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "enum": [
+            "minPrecision",
+            "minRecall",
+            "minF1",
+            "maxFalsePositivesPerSession",
+            "maxFalsePositivesPerNegativeHour",
+            "maxP95LatencyMs"
+          ]
+        },
+        "comparator": {
+          "type": "string",
+          "enum": [
+            ">=",
+            "<="
+          ]
+        },
+        "threshold": {
+          "type": "number"
+        },
+        "actual": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "passed": {
+          "type": "boolean"
+        },
+        "reason": {
+          "const": "metricUnavailable"
+        }
+      },
+      "additionalProperties": false
+    },
+    "gates": {
+      "type": "object",
+      "required": [
+        "configured",
+        "passed",
+        "checks"
+      ],
+      "properties": {
+        "configured": {
+          "type": "boolean"
+        },
+        "passed": {
+          "type": "boolean"
+        },
+        "checks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/gateCheck"
+          },
+          "maxItems": 6
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

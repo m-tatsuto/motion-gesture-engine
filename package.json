@@ -3,10 +3,15 @@
   "version": "0.1.0",
   "private": true,
   "license": "Apache-2.0",
-  "description": "Validation tooling for the Motion Gesture Engine interchange specification",
+  "description": "Validation and event-evaluation tooling for Motion Gesture Engine",
   "type": "module",
+  "bin": {
+    "motion-eval": "tools/motion-eval/cli.mjs"
+  },
   "scripts": {
-    "test": "npm run validate:schemas && npm run validate:fixtures",
+    "test": "npm run validate:schemas && npm run validate:fixtures && npm run test:evaluator",
+    "motion-eval": "node tools/motion-eval/cli.mjs",
+    "test:evaluator": "node --test tools/motion-eval/test/*.test.mjs",
     "validate:schemas": "node tools/validate-trace.mjs --schemas",
     "validate:fixtures": "node tools/validate-trace.mjs --fixtures",
     "validate:trace": "node tools/validate-trace.mjs"

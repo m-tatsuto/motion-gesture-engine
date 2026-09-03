@@ -342,7 +342,7 @@ A recorder instance owns exactly one trace. It MUST reject samples outside `reco
 | `finished` | read report | terminal |
 | `failed` | inspect error/diagnostics | terminal |
 
-Evaluation is deterministic and side-effect free for the same validated inputs and evaluator version. It MUST NOT read a sensor, wall clock, network service, account identity, or device identity. Matching policy and metrics are defined by the evaluator specification in [issue #9](https://github.com/m-tatsuto/motion-gesture-engine/issues/9).
+Evaluation is deterministic and side-effect free for the same validated inputs and evaluator version. It MUST NOT read a sensor, wall clock, network service, account identity, or device identity. Matching policy and metrics are defined by the [event evaluator specification](../../docs/evaluator-v1.md).
 
 ## 11. Error contract
 
