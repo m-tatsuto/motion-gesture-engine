@@ -1,0 +1,2 @@
+{"recordType":"predictedEvent","eventId":"24e2c24b-a03f-899e-addf-e53c4e04264f","detectorStreamId":"legacy.replay.v1","eventSequence":0,"timestampNs":0,"gesture":"tiltForward","sourceSampleSequence":0}
+{"recordType":"predictedEvent","eventId":"24e2c34b-a03f-8b51-addf-e43c4e04249c","detectorStreamId":"legacy.replay.v1","eventSequence":1,"timestampNs":40000000,"gesture":"tiltForward","sourceSampleSequence":4}

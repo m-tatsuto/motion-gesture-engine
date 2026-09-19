@@ -24,6 +24,34 @@
     {
       "path": "../replay/legacy-gravity-threshold-v1.with-predictions.mge.jsonl",
       "expectedTraceState": "finalizedComplete"
+    },
+    {
+      "path": "../golden/traces/neutral-boundaries-noise.mge.jsonl",
+      "expectedTraceState": "finalizedComplete"
+    },
+    {
+      "path": "../golden/expected/neutral-boundaries-noise.with-predictions.mge.jsonl",
+      "expectedTraceState": "finalizedComplete"
+    },
+    {
+      "path": "../golden/traces/forward-rearm-repeat.mge.jsonl",
+      "expectedTraceState": "finalizedComplete"
+    },
+    {
+      "path": "../golden/expected/forward-rearm-repeat.with-predictions.mge.jsonl",
+      "expectedTraceState": "finalizedComplete"
+    },
+    {
+      "path": "../golden/traces/backward-irregular-long-gap.mge.jsonl",
+      "expectedTraceState": "finalizedComplete"
+    },
+    {
+      "path": "../golden/expected/backward-irregular-long-gap.with-predictions.mge.jsonl",
+      "expectedTraceState": "finalizedComplete"
+    },
+    {
+      "path": "../golden/traces/evaluator-boundaries.with-predictions.mge.jsonl",
+      "expectedTraceState": "finalizedComplete"
     }
   ],
   "invalid": [

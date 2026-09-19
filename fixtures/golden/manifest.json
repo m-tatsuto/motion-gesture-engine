@@ -1,0 +1,150 @@
+{
+  "manifestVersion": "1.0.0",
+  "fixtureSet": "v0.1-measurement-foundation",
+  "dataPolicy": {
+    "syntheticOnly": true,
+    "containsProductionData": false,
+    "containsUserSubmittedData": false,
+    "forbiddenFields": [
+      "accountId",
+      "deviceId",
+      "exactModel",
+      "location",
+      "applicationLogs",
+      "arbitraryLog"
+    ]
+  },
+  "baselineCases": [
+    {
+      "id": "neutral-boundaries-noise",
+      "tracePath": "traces/neutral-boundaries-noise.mge.jsonl",
+      "scenarioTags": [
+        "neutral",
+        "thresholdEquality",
+        "nearThresholdJitter",
+        "shakeLikeNoise"
+      ],
+      "provenance": {
+        "kind": "synthetic",
+        "generatorId": "golden.fixture.generator",
+        "generatorVersion": "1.0.0"
+      },
+      "privacyTier": "synthetic",
+      "publicationStatus": "publicApproved",
+      "reviewStatus": "reviewedSynthetic",
+      "expectedPredictionPath": "expected/neutral-boundaries-noise.predictions.jsonl",
+      "replayTraceWithPredictionsPath": "expected/neutral-boundaries-noise.with-predictions.mge.jsonl",
+      "expectedEvaluationReportPath": "expected/neutral-boundaries-noise.evaluation-report.json",
+      "detector": {
+        "detectorStreamId": "legacy.replay.v1",
+        "detectorId": "LegacyGravityThresholdV1",
+        "detectorVersion": "1.0.0",
+        "configurationIdentity": "legacy.default.v1"
+      }
+    },
+    {
+      "id": "forward-rearm-repeat",
+      "tracePath": "traces/forward-rearm-repeat.mge.jsonl",
+      "scenarioTags": [
+        "tiltForward",
+        "rearmBoundary",
+        "repeatedGestures",
+        "repeatedSamples",
+        "equalTimestampSamples"
+      ],
+      "provenance": {
+        "kind": "synthetic",
+        "generatorId": "golden.fixture.generator",
+        "generatorVersion": "1.0.0"
+      },
+      "privacyTier": "synthetic",
+      "publicationStatus": "publicApproved",
+      "reviewStatus": "reviewedSynthetic",
+      "expectedPredictionPath": "expected/forward-rearm-repeat.predictions.jsonl",
+      "replayTraceWithPredictionsPath": "expected/forward-rearm-repeat.with-predictions.mge.jsonl",
+      "expectedEvaluationReportPath": "expected/forward-rearm-repeat.evaluation-report.json",
+      "detector": {
+        "detectorStreamId": "legacy.replay.v1",
+        "detectorId": "LegacyGravityThresholdV1",
+        "detectorVersion": "1.0.0",
+        "configurationIdentity": "legacy.default.v1"
+      }
+    },
+    {
+      "id": "backward-irregular-long-gap",
+      "tracePath": "traces/backward-irregular-long-gap.mge.jsonl",
+      "scenarioTags": [
+        "tiltBackward",
+        "repeatedGestures",
+        "irregularSampling",
+        "longTimingGap"
+      ],
+      "provenance": {
+        "kind": "synthetic",
+        "generatorId": "golden.fixture.generator",
+        "generatorVersion": "1.0.0"
+      },
+      "privacyTier": "synthetic",
+      "publicationStatus": "publicApproved",
+      "reviewStatus": "reviewedSynthetic",
+      "expectedPredictionPath": "expected/backward-irregular-long-gap.predictions.jsonl",
+      "replayTraceWithPredictionsPath": "expected/backward-irregular-long-gap.with-predictions.mge.jsonl",
+      "expectedEvaluationReportPath": "expected/backward-irregular-long-gap.evaluation-report.json",
+      "detector": {
+        "detectorStreamId": "legacy.replay.v1",
+        "detectorId": "LegacyGravityThresholdV1",
+        "detectorVersion": "1.0.0",
+        "configurationIdentity": "legacy.default.v1"
+      }
+    }
+  ],
+  "evaluatorCases": [
+    {
+      "id": "evaluator-boundaries",
+      "tracePath": "traces/evaluator-boundaries.with-predictions.mge.jsonl",
+      "scenarioTags": [
+        "duplicatePrediction",
+        "wrongDirection",
+        "earlyBoundary",
+        "lateBoundary",
+        "outsideTolerance",
+        "negativeExposure"
+      ],
+      "provenance": {
+        "kind": "synthetic",
+        "generatorId": "golden.fixture.generator",
+        "generatorVersion": "1.0.0"
+      },
+      "privacyTier": "synthetic",
+      "publicationStatus": "publicApproved",
+      "reviewStatus": "reviewedSynthetic",
+      "expectedEvaluationReportPath": "expected/evaluator-boundaries.evaluation-report.json",
+      "detector": {
+        "detectorStreamId": "golden.evaluator.v1",
+        "detectorId": "SyntheticPredictionFixture",
+        "detectorVersion": "1.0.0",
+        "configurationIdentity": "evaluator.boundaries.v1"
+      }
+    }
+  ],
+  "replayErrorCases": [
+    {
+      "id": "malformed-sample",
+      "tracePath": "../v1/invalid/sample-without-signals.mge.jsonl",
+      "scenarioTags": [
+        "malformedTrace"
+      ],
+      "expectedSchemaErrorCode": "schemaViolation",
+      "expectedReplayErrorCode": "malformedRecord"
+    },
+    {
+      "id": "incomplete-trace",
+      "tracePath": "../v1/invalid/missing-footer.mge.jsonl",
+      "scenarioTags": [
+        "incompleteTrace"
+      ],
+      "expectedSchemaErrorCode": "incompleteTrace",
+      "expectedReplayErrorCode": "incompleteTrace"
+    }
+  ]
+}

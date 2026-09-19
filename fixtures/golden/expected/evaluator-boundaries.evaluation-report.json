@@ -1,0 +1,119 @@
+{
+  "reportVersion": "1.0.0-draft.1",
+  "evaluator": {
+    "name": "motion-eval",
+    "version": "0.1.0"
+  },
+  "matchingPolicy": {
+    "groundTruthAnnotationKind": "gestureCommit",
+    "groundTruthProvenance": "reviewedGroundTruth",
+    "latencyAnchor": "gestureCommit.timestampNs",
+    "algorithm": "earliestDeadlineMaximumCardinality",
+    "earlyToleranceNs": 100000000,
+    "lateToleranceNs": 500000000
+  },
+  "dataset": {
+    "sessions": 1,
+    "annotationSelection": {
+      "reviewedGestureCommits": 4,
+      "reviewedNegativeWindows": 3,
+      "ignoredReviewedAnnotations": 0,
+      "ignoredByProvenance": {
+        "synthetic": 7,
+        "contributor": 0,
+        "userReport": 0
+      }
+    }
+  },
+  "detectors": [
+    {
+      "detectorId": "SyntheticPredictionFixture",
+      "detectorVersion": "1.0.0",
+      "configurationIdentity": "evaluator.boundaries.v1"
+    }
+  ],
+  "overall": {
+    "events": {
+      "truePositives": 2,
+      "falsePositives": 4,
+      "falseNegatives": 2
+    },
+    "rates": {
+      "precision": 0.3333333333333333,
+      "recall": 0.5,
+      "f1": 0.4,
+      "falsePositivesPerSession": 4,
+      "falsePositivesPerNegativeHour": 2
+    },
+    "latencyNs": {
+      "matchedEvents": 2,
+      "p50": -100000000,
+      "p95": 500000000
+    },
+    "negativeExposure": {
+      "durationNs": 3600000000000,
+      "falsePositives": 2
+    },
+    "negativeWindowClassification": {
+      "windows": 3,
+      "trueNegatives": 1,
+      "falsePositiveWindows": 2,
+      "specificity": 0.3333333333333333,
+      "accuracy": 0.42857142857142855
+    }
+  },
+  "byGesture": {
+    "tiltForward": {
+      "events": {
+        "truePositives": 1,
+        "falsePositives": 3,
+        "falseNegatives": 2
+      },
+      "rates": {
+        "precision": 0.25,
+        "recall": 0.3333333333333333,
+        "f1": 0.2857142857142857,
+        "falsePositivesPerSession": 3,
+        "falsePositivesPerNegativeHour": 2
+      },
+      "latencyNs": {
+        "matchedEvents": 1,
+        "p50": -100000000,
+        "p95": -100000000
+      },
+      "negativeExposure": {
+        "durationNs": 3600000000000,
+        "falsePositives": 2
+      }
+    },
+    "tiltBackward": {
+      "events": {
+        "truePositives": 1,
+        "falsePositives": 1,
+        "falseNegatives": 0
+      },
+      "rates": {
+        "precision": 0.5,
+        "recall": 1,
+        "f1": 0.6666666666666666,
+        "falsePositivesPerSession": 1,
+        "falsePositivesPerNegativeHour": 0
+      },
+      "latencyNs": {
+        "matchedEvents": 1,
+        "p50": 500000000,
+        "p95": 500000000
+      },
+      "negativeExposure": {
+        "durationNs": 3600000000000,
+        "falsePositives": 0
+      }
+    }
+  },
+  "groups": [],
+  "gates": {
+    "configured": false,
+    "passed": true,
+    "checks": []
+  }
+}

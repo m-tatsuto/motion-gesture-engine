@@ -5,6 +5,44 @@ import XCTest
 import MotionGestureRecorder
 
 final class ReplayMotionSourceTests: XCTestCase {
+  func testGoldenManifestBaselinePredictionsAndDetectorIdentity() throws {
+    let manifest = try goldenManifest()
+    XCTAssertFalse(manifest.baselineCases.isEmpty)
+
+    for fixtureCase in manifest.baselineCases {
+      let source = ReplayMotionSource(
+        detector: LegacyGravityThresholdV1ReplayDetector(
+          detectorStreamId: fixtureCase.detector.detectorStreamId
+        )
+      )
+      try source.load(url: goldenFixture(fixtureCase.tracePath))
+
+      let first = try source.run()
+      let expected = try predictionRecords(at: fixtureCase.expectedPredictionPath)
+      XCTAssertEqual(first.detector, fixtureCase.detector, fixtureCase.id)
+      XCTAssertEqual(first.events, expected, fixtureCase.id)
+
+      try source.reset()
+      XCTAssertEqual(try source.run(), first, "\(fixtureCase.id) must replay deterministically")
+    }
+  }
+
+  func testGoldenManifestReplayErrorsRemainTyped() throws {
+    for fixtureCase in try goldenManifest().replayErrorCases {
+      let expectedCode = try XCTUnwrap(
+        ReplayErrorCode(rawValue: fixtureCase.expectedReplayErrorCode),
+        "unknown expected code for \(fixtureCase.id)"
+      )
+      XCTAssertThrowsError(
+        try MotionTraceReplayLoader.load(
+          data: Data(contentsOf: goldenFixture(fixtureCase.tracePath))
+        )
+      ) { error in
+        XCTAssertEqual((error as? ReplayError)?.code, expectedCode, fixtureCase.id)
+      }
+    }
+  }
+
   func testSharedFixtureProducesDeterministicPredictionsAcrossReset() throws {
     let source = ReplayMotionSource(detector: LegacyGravityThresholdV1ReplayDetector())
     try source.load(url: fixture("replay/legacy-gravity-threshold-v1.mge.jsonl"))
@@ -171,6 +209,24 @@ final class ReplayMotionSourceTests: XCTestCase {
     }
   }
 
+  private func goldenManifest() throws -> GoldenFixtureManifest {
+    try JSONDecoder().decode(
+      GoldenFixtureManifest.self,
+      from: Data(contentsOf: fixture("golden/manifest.json"))
+    )
+  }
+
+  private func predictionRecords(at relativePath: String) throws -> [MotionPredictedEventRecord] {
+    let contents = try String(contentsOf: goldenFixture(relativePath), encoding: .utf8)
+    return try contents.split(separator: "\n").map { line in
+      try JSONDecoder().decode(MotionPredictedEventRecord.self, from: Data(line.utf8))
+    }
+  }
+
+  private func goldenFixture(_ relativePath: String) -> URL {
+    fixture("golden/\(relativePath)")
+  }
+
   private func fixture(_ relativePath: String) -> URL {
     let repositoryRoot = URL(fileURLWithPath: #filePath)
       .deletingLastPathComponent()
@@ -179,4 +235,23 @@ final class ReplayMotionSourceTests: XCTestCase {
       .deletingLastPathComponent()
     return repositoryRoot.appendingPathComponent("fixtures/\(relativePath)")
   }
+}
+
+private struct GoldenFixtureManifest: Decodable {
+  let baselineCases: [GoldenBaselineCase]
+  let replayErrorCases: [GoldenReplayErrorCase]
+}
+
+private struct GoldenBaselineCase: Decodable {
+  let id: String
+  let tracePath: String
+  let scenarioTags: [String]
+  let expectedPredictionPath: String
+  let detector: MotionDetectorDescriptor
+}
+
+private struct GoldenReplayErrorCase: Decodable {
+  let id: String
+  let tracePath: String
+  let expectedReplayErrorCode: String
 }

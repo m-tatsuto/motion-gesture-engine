@@ -31,7 +31,8 @@ const SCHEMA_FILES = [
   "motion-trace-footer.schema.json",
   "motion-trace-record.schema.json",
   "motion-trace.schema.json",
-  "motion-evaluation-report.schema.json"
+  "motion-evaluation-report.schema.json",
+  "golden-fixture-manifest.schema.json"
 ];
 
 const SCHEMA_ID_BASE =
