@@ -53,6 +53,10 @@ Consent, authentication, upload endpoints, private storage, retention, and user 
 
 See the [Core specification v1](spec/v1/core.md), [Wire format v1](spec/v1/wire-format.md), [Design principles](docs/design-principles.md), [Legacy baseline](docs/legacy-gravity-threshold-v1.md), [Recorder contract](docs/recorder-v1.md), [Core Motion adapter](docs/core-motion-recorder-adapter.md), [Android Sensors adapter](docs/android-sensors-recorder-adapter.md), [Replay contract](docs/replay-v1.md), [Evaluator contract](docs/evaluator-v1.md), and the [Roadmap](ROADMAP.md). Work is tracked in the [v0.1 epic](https://github.com/m-tatsuto/motion-gesture-engine/issues/1) and [Measurement Foundation milestone](https://github.com/m-tatsuto/motion-gesture-engine/milestone/1).
 
+The [golden fixture and parity guide](docs/golden-fixtures.md) documents the
+shared synthetic corpus, publication safeguards, local verification, and the
+review-only expected-value update procedure.
+
 ## Module layout
 
 ```text
@@ -91,6 +95,13 @@ npm run motion-eval -- --json - path/to/trace.mge.jsonl
 ```
 
 The evaluator tests are included in `npm test` and cover deterministic matching, metric aggregation, regression gates, gzip input, and private-metadata redaction.
+
+Run the committed cross-platform prediction and evaluator metric regression
+checks directly with:
+
+```sh
+npm run golden:verify
+```
 
 ## Privacy
 

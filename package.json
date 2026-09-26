@@ -9,9 +9,12 @@
     "motion-eval": "tools/motion-eval/cli.mjs"
   },
   "scripts": {
-    "test": "npm run validate:schemas && npm run validate:fixtures && npm run test:evaluator",
+    "test": "npm run validate:schemas && npm run validate:fixtures && npm run test:evaluator && npm run test:golden",
     "motion-eval": "node tools/motion-eval/cli.mjs",
     "test:evaluator": "node --test tools/motion-eval/test/*.test.mjs",
+    "test:golden": "node --test tools/golden-fixtures/test/*.test.mjs",
+    "golden:verify": "npm run test:golden",
+    "golden:update": "node tools/golden-fixtures/generate.mjs",
     "validate:schemas": "node tools/validate-trace.mjs --schemas",
     "validate:fixtures": "node tools/validate-trace.mjs --fixtures",
     "validate:trace": "node tools/validate-trace.mjs"

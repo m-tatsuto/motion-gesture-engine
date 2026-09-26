@@ -1,0 +1,69 @@
+name: v0.1 golden parity
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  node-conformance:
+    name: Node schema, fixtures, and evaluator regression
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Validate schemas and Motion Trace fixtures
+        run: npm run validate:schemas && npm run validate:fixtures
+      - name: Run motion-eval unit tests
+        run: npm run test:evaluator
+      - name: Verify committed predictions and metric goldens
+        run: npm run golden:verify
+
+  swift-parity:
+    name: Swift tests and golden replay parity
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v5
+      - name: Record Swift toolchain
+        run: swift --version
+      - name: Run Swift package and golden parity tests
+        run: swift test --package-path swift
+
+  kotlin-parity:
+    name: Kotlin and Android tests and golden replay parity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 17
+      - name: Install the configured Android platform
+        run: |
+          "${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager" "platforms;android-37.0"
+      - uses: gradle/actions/setup-gradle@v6
+      - name: Run Kotlin, Android, and golden parity tests
+        run: ./android/gradlew -p android test
+
+  v0-1-release-gate:
+    name: v0.1 measurement foundation gate
+    if: ${{ always() }}
+    needs: [node-conformance, swift-parity, kotlin-parity]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require schema, prediction, and metric parity
+        env:
+          NODE_RESULT: ${{ needs.node-conformance.result }}
+          SWIFT_RESULT: ${{ needs.swift-parity.result }}
+          KOTLIN_RESULT: ${{ needs.kotlin-parity.result }}
+        run: |
+          test "$NODE_RESULT" = success
+          test "$SWIFT_RESULT" = success
+          test "$KOTLIN_RESULT" = success

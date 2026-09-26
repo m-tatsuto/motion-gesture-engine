@@ -16,6 +16,9 @@ The v0.1 roadmap establishes measurement before changing the detector.
 | [OSS-08](https://github.com/m-tatsuto/motion-gesture-engine/issues/9) | Implement event matching and the motion-eval CLI | OSS-02, OSS-07 | Reports include TP, FP, FN, precision, recall, F1, false positives per exposure, and latency percentiles in JSON and Markdown. |
 | [OSS-09](https://github.com/m-tatsuto/motion-gesture-engine/issues/10) | Add golden traces and Swift/Kotlin parity CI | OSS-03 through OSS-08 | Schema, replay, prediction, and metric results are regression-tested across both platforms. |
 
+OSS-09 verification and the reviewed expected-value update process are defined
+in the [golden fixture and parity guide](docs/golden-fixtures.md).
+
 ## Dependency flow
 
 ```text

@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/m-tatsuto/motion-gesture-engine/main/spec/v1/schema/golden-fixture-manifest.schema.json",
+  "title": "Golden fixture manifest v1",
+  "type": "object",
+  "required": ["manifestVersion", "fixtureSet", "dataPolicy", "baselineCases", "evaluatorCases", "replayErrorCases"],
+  "properties": {
+    "manifestVersion": { "const": "1.0.0" },
+    "fixtureSet": { "$ref": "common.schema.json#/$defs/identifier" },
+    "dataPolicy": {
+      "type": "object",
+      "required": ["syntheticOnly", "containsProductionData", "containsUserSubmittedData", "forbiddenFields"],
+      "properties": {
+        "syntheticOnly": { "const": true },
+        "containsProductionData": { "const": false },
+        "containsUserSubmittedData": { "const": false },
+        "forbiddenFields": { "type": "array", "items": { "type": "string" }, "minItems": 1, "uniqueItems": true }
+      },
+      "additionalProperties": false
+    },
+    "baselineCases": { "type": "array", "items": { "$ref": "#/$defs/baselineCase" }, "minItems": 1 },
+    "evaluatorCases": { "type": "array", "items": { "$ref": "#/$defs/evaluatorCase" }, "minItems": 1 },
+    "replayErrorCases": { "type": "array", "items": { "$ref": "#/$defs/replayErrorCase" }, "minItems": 1 }
+  },
+  "$defs": {
+    "relativePath": { "type": "string", "minLength": 1, "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+$" },
+    "scenarioTags": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/identifier" }, "minItems": 1, "uniqueItems": true },
+    "provenance": {
+      "type": "object",
+      "required": ["kind", "generatorId", "generatorVersion"],
+      "properties": {
+        "kind": { "const": "synthetic" },
+        "generatorId": { "$ref": "common.schema.json#/$defs/identifier" },
+        "generatorVersion": { "$ref": "common.schema.json#/$defs/semanticVersion" }
+      },
+      "additionalProperties": false
+    },
+    "detector": {
+      "type": "object",
+      "required": ["detectorStreamId", "detectorId", "detectorVersion", "configurationIdentity"],
+      "properties": {
+        "detectorStreamId": { "$ref": "common.schema.json#/$defs/identifier" },
+        "detectorId": { "$ref": "common.schema.json#/$defs/identifier" },
+        "detectorVersion": { "$ref": "common.schema.json#/$defs/semanticVersion" },
+        "configurationIdentity": { "$ref": "common.schema.json#/$defs/identifier" }
+      },
+      "additionalProperties": false
+    },
+    "publishedCase": {
+      "type": "object",
+      "required": ["id", "tracePath", "scenarioTags", "provenance", "privacyTier", "publicationStatus", "reviewStatus", "expectedEvaluationReportPath", "detector"],
+      "properties": {
+        "id": { "$ref": "common.schema.json#/$defs/identifier" },
+        "tracePath": { "$ref": "#/$defs/relativePath" },
+        "scenarioTags": { "$ref": "#/$defs/scenarioTags" },
+        "provenance": { "$ref": "#/$defs/provenance" },
+        "privacyTier": { "const": "synthetic" },
+        "publicationStatus": { "const": "publicApproved" },
+        "reviewStatus": { "const": "reviewedSynthetic" },
+        "expectedEvaluationReportPath": { "$ref": "#/$defs/relativePath" },
+        "detector": { "$ref": "#/$defs/detector" }
+      }
+    },
+    "baselineCase": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/publishedCase" },
+        {
+          "type": "object",
+          "required": ["expectedPredictionPath", "replayTraceWithPredictionsPath"],
+          "properties": {
+            "expectedPredictionPath": { "$ref": "#/$defs/relativePath" },
+            "replayTraceWithPredictionsPath": { "$ref": "#/$defs/relativePath" }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "evaluatorCase": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/publishedCase" },
+        { "type": "object" }
+      ],
+      "unevaluatedProperties": false
+    },
+    "replayErrorCase": {
+      "type": "object",
+      "required": ["id", "tracePath", "scenarioTags", "expectedSchemaErrorCode", "expectedReplayErrorCode"],
+      "properties": {
+        "id": { "$ref": "common.schema.json#/$defs/identifier" },
+        "tracePath": { "type": "string", "minLength": 1 },
+        "scenarioTags": { "$ref": "#/$defs/scenarioTags" },
+        "expectedSchemaErrorCode": { "$ref": "common.schema.json#/$defs/identifier" },
+        "expectedReplayErrorCode": { "$ref": "common.schema.json#/$defs/identifier" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

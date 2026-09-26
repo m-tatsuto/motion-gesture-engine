@@ -1,0 +1,112 @@
+{
+  "reportVersion": "1.0.0-draft.1",
+  "evaluator": {
+    "name": "motion-eval",
+    "version": "0.1.0"
+  },
+  "matchingPolicy": {
+    "groundTruthAnnotationKind": "gestureCommit",
+    "groundTruthProvenance": "reviewedGroundTruth",
+    "latencyAnchor": "gestureCommit.timestampNs",
+    "algorithm": "earliestDeadlineMaximumCardinality",
+    "earlyToleranceNs": 100000000,
+    "lateToleranceNs": 500000000
+  },
+  "dataset": {
+    "sessions": 1,
+    "annotationSelection": {
+      "reviewedGestureCommits": 2,
+      "reviewedNegativeWindows": 0,
+      "ignoredReviewedAnnotations": 0,
+      "ignoredByProvenance": {
+        "synthetic": 2,
+        "contributor": 0,
+        "userReport": 0
+      }
+    }
+  },
+  "detectors": [
+    {
+      "detectorId": "LegacyGravityThresholdV1",
+      "detectorVersion": "1.0.0",
+      "configurationIdentity": "legacy.default.v1"
+    }
+  ],
+  "overall": {
+    "events": {
+      "truePositives": 2,
+      "falsePositives": 0,
+      "falseNegatives": 0
+    },
+    "rates": {
+      "precision": 1,
+      "recall": 1,
+      "f1": 1,
+      "falsePositivesPerSession": 0,
+      "falsePositivesPerNegativeHour": null
+    },
+    "latencyNs": {
+      "matchedEvents": 2,
+      "p50": 0,
+      "p95": 0
+    },
+    "negativeExposure": {
+      "durationNs": 0,
+      "falsePositives": 0
+    }
+  },
+  "byGesture": {
+    "tiltForward": {
+      "events": {
+        "truePositives": 2,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "rates": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "falsePositivesPerSession": 0,
+        "falsePositivesPerNegativeHour": null
+      },
+      "latencyNs": {
+        "matchedEvents": 2,
+        "p50": 0,
+        "p95": 0
+      },
+      "negativeExposure": {
+        "durationNs": 0,
+        "falsePositives": 0
+      }
+    },
+    "tiltBackward": {
+      "events": {
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "rates": {
+        "precision": null,
+        "recall": null,
+        "f1": null,
+        "falsePositivesPerSession": 0,
+        "falsePositivesPerNegativeHour": null
+      },
+      "latencyNs": {
+        "matchedEvents": 0,
+        "p50": null,
+        "p95": null
+      },
+      "negativeExposure": {
+        "durationNs": 0,
+        "falsePositives": 0
+      }
+    }
+  },
+  "groups": [],
+  "gates": {
+    "configured": false,
+    "passed": true,
+    "checks": []
+  }
+}
