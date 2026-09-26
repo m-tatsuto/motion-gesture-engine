@@ -2,10 +2,11 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     id("com.android.library")
+    `maven-publish`
 }
 
-group = "io.github.mtatsuto.motiongesture"
-version = "0.1.0-SNAPSHOT"
+group = providers.gradleProperty("motionGestureGroup").getOrElse("io.github.mtatsuto.motiongesture")
+version = providers.gradleProperty("motionGestureVersion").getOrElse("0.1.0-SNAPSHOT")
 
 android {
     namespace = "io.github.mtatsuto.motiongesture.androidsensors"
@@ -25,6 +26,12 @@ android {
             it.useJUnitPlatform()
         }
     }
+
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+        }
+    }
 }
 
 kotlin {
@@ -37,4 +44,14 @@ dependencies {
     api(project(":motion-gesture-recorder"))
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5:2.3.21")
     testImplementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0")
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            create<MavenPublication>("release") {
+                from(components["release"])
+            }
+        }
+    }
 }
