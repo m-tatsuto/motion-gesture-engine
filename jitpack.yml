@@ -1,0 +1,5 @@
+jdk:
+  - openjdk21
+install:
+  - '"${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager" "platforms;android-37.0"'
+  - cd android && ./gradlew test publishToMavenLocal -PmotionGestureGroup="$GROUP.$ARTIFACT" -PmotionGestureVersion="$VERSION" --no-daemon

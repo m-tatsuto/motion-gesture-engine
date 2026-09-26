@@ -79,6 +79,24 @@ The Swift and Kotlin core modules contain the immutable `LegacyGravityThresholdV
 
 ## Library development
 
+### Package consumers
+
+The repository root is a Swift Package. Add
+`https://github.com/m-tatsuto/motion-gesture-engine.git` in Xcode or SwiftPM,
+pin an immutable release tag, and select only the product needed by your app
+(`MotionGestureCore`, `MotionGestureRecorder`, `MotionGestureCoreMotion`, or
+`MotionGestureReplay`). The `swift/` manifest is also available for standalone
+library development. `LegacyGravityThresholdV1` is an unchanged comparison
+baseline, not a new production detector.
+
+Android modules are published from the same release tag through JitPack. Add
+`https://jitpack.io` to `dependencyResolutionManagement.repositories` and use,
+for example, `implementation("com.github.m-tatsuto.motion-gesture-engine:motion-gesture-core:0.1.0-beta.1")`.
+The other artifact names are `motion-gesture-recorder`,
+`motion-gesture-android-sensors`, and `motion-gesture-replay`. Pin the same
+immutable tag on both platforms; do not use a floating branch snapshot in an
+app release. See [package release verification](docs/package-release.md).
+
 Run the Swift and Kotlin tests from the repository root:
 
 ```sh
